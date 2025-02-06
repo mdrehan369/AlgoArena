@@ -6,6 +6,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
 }
 
 datasource db {
@@ -13,13 +14,21 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Provider {
+  GOOGLE
+  FACEBOOK
+  GITHUB
+  CREDENTIALS
+}
+
 model User {
   id Int @id @unique @default(autoincrement())
   name String
   username String @unique
-  email String @unique
-  password String
+  email String
+  password String @default("")
   profilePic String @default("")
+  provider Provider @default(CREDENTIALS)
 
   submittedResults SubmittedResult[]
 }

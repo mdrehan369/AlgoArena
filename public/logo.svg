@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200">
+  <!-- Background -->
+  <rect width="400" height="200" fill="transparent" rx="10"/>
+  
+  <!-- Code brackets design -->
+  <path d="M80 60 L120 100 L80 140" stroke="#7986cb" stroke-width="8" fill="none"/>
+  <path d="M320 60 L280 100 L320 140" stroke="#7986cb" stroke-width="8" fill="none"/>
+  
+  <!-- Center circle representing arena -->
+  <circle cx="200" cy="100" r="40" fill="none" stroke="#3f51b5" stroke-width="6"/>
+  
+  <!-- Binary accent elements -->
+  <text x="160" y="85" fill="#9fa8da" font-family="monospace" font-size="12">1010</text>
+  <text x="220" y="125" fill="#9fa8da" font-family="monospace" font-size="12">0101</text>
+  
+  <!-- Logo text -->
+  <text x="200" y="105" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-size="28" font-weight="bold">ALGO</text>
+  <text x="200" y="130" text-anchor="middle" fill="#c5cae9" font-family="Arial, sans-serif" font-size="24" font-weight="bold">ARENA</text>
+</svg>

@@ -1,31 +1,19 @@
-'use server'
-
-import { Prisma } from "@prisma/client";
 import axios from "axios";
-import { v2 } from "cloudinary"
+import { v2 } from "cloudinary";
+import { type NextRequest, NextResponse } from "next/server";
 
-// Configuration
 v2.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-export const deleteImage = async (public_id: string) => {
-    try {
-        const response = await v2.uploader.destroy(public_id)
-        return response
-    } catch (err) {
-        console.log(err)
-        return null
-    }
-}
-
-export const downloadAndUploadImage = async (imageUrl: string): Promise<Prisma.ImageCreateInput> => {
+export const POST = async (req: NextRequest) => {
     try {
         // Download the image
+        const body = await req.json()
         const response = await axios({
-            url: imageUrl,
+            url: body.url,
             method: 'GET',
             responseType: 'arraybuffer'
         });
@@ -35,20 +23,21 @@ export const downloadAndUploadImage = async (imageUrl: string): Promise<Prisma.I
         const dataUri = `data:${response.headers['content-type']};base64,${base64Image}`;
 
         // Upload the image to Cloudinary
+        console.log("yaha tk aaya h")
         const uploadResponse = await v2.uploader.upload(dataUri, {
             upload_preset: "AlgoArenaPresets"
         });
 
         // Return the URL of the uploaded image
-        return {
+        return NextResponse.json({
             publicId: uploadResponse.public_id,
             url: uploadResponse.secure_url,
-        };
+        });
     } catch (error) {
         console.error('Error downloading or uploading image:', error);
-        return {
+        return NextResponse.json({
             publicId: "",
             url: "",
-        };
+        });
     }
 }

@@ -5,7 +5,7 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = ["driverAdapters"]
 }
 
@@ -22,15 +22,23 @@ enum Provider {
 }
 
 model User {
-  id Int @id @unique @default(autoincrement())
-  name String
-  username String @unique
-  email String
-  password String @default("")
-  profilePic String @default("")
+  id       Int      @id @unique @default(autoincrement())
+  name     String
+  username String   @unique
+  email    String
+  password String   @default("")
   provider Provider @default(CREDENTIALS)
 
   submittedResults SubmittedResult[]
+  profilePic       Image?
+}
+
+model Image {
+  id       Int    @id @unique @default(autoincrement())
+  publicId String
+  url      String
+  userId   Int?   @unique
+  user     User?  @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 enum Language {
@@ -41,31 +49,31 @@ enum Language {
 }
 
 model TestCase {
-  id Int @id @unique @default(autoincrement())
+  id        Int     @id @unique @default(autoincrement())
   problemId Int
-  problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  problem   Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
 }
 
 model Problem {
-  id Int @id @unique @default(autoincrement())
-  title String @unique
+  id          Int    @id @unique @default(autoincrement())
+  title       String @unique
   description String
 
-  testCases TestCase[]
+  testCases        TestCase[]
   submittedResults SubmittedResult[]
-  createdAt DateTime @default(now())
+  createdAt        DateTime          @default(now())
 }
 
 model SubmittedResult {
-  id Int @id @unique @default(autoincrement())
-  problemId Int
-  userId Int
-  code String
-  isAccepted Boolean @default(false)
-  language Language
-  runtime Float
+  id         Int      @id @unique @default(autoincrement())
+  problemId  Int
+  userId     Int
+  code       String
+  isAccepted Boolean  @default(false)
+  language   Language
+  runtime    Float
 
-  problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problem   Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
 }

@@ -1,4 +1,4 @@
-import NextAuth, { AuthError } from "next-auth"
+import NextAuth from "next-auth"
 import Google from "next-auth/providers/google"
 import Credentials from "next-auth/providers/credentials"
 import GitHub from "next-auth/providers/github"
@@ -8,6 +8,9 @@ import bcrypt from "bcryptjs"
 import { CredentialsSignin } from "@auth/core/errors"
 import { Provider } from "@prisma/client"
 import { generateUsername } from "./utils/generateUsernames"
+import { downloadAndUploadImage } from "./actions/cloudinary.actions"
+import axios from "axios"
+import { axiosInstance, axiosInstanceNext } from "./utils/axiosInstance"
 
 class InvalidPasswordError extends CredentialsSignin {
     code = "Invalid Password"
@@ -86,26 +89,43 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         // If a user signs in with a provider handle that here and if he/she logs in with credentials, allow them
         signIn: async ({ user, account }) => {
             const { email, name, image } = user
-            if(!email || !name) return false
-            console.log(user)
-            console.log(account)
+            if (!email || !name) return false
 
-            if(account?.provider) {
+            if (account?.provider) {
                 const user = await prismaClient.user.findFirst({
                     where: {
                         email,
                         provider: account.provider.toUpperCase() as Provider
                     }
                 })
-                if(!user) await prismaClient.user.create({
-                    data: {
-                        email,
-                        name,
-                        username: generateUsername(email),
-                        provider: account.provider.toUpperCase() as Provider,
-                        profilePic: image || ""
+
+                if (!user) {
+                    let profilePic = {
+                        url: "",
+                        publicId: ""
                     }
-                })
+                    if (image) {
+                        profilePic = await axiosInstanceNext.post(
+                            "/api/cloudinary",
+                            { url: image }
+                        ).then(data => data.data)
+                    }
+                    await prismaClient.user.create({
+                        data: {
+                            email,
+                            name,
+                            username: generateUsername(email),
+                            provider:
+                                account.provider.toUpperCase() as Provider,
+                            profilePic: {
+                                create: {
+                                    url: image || "",
+                                    publicId: profilePic.publicId
+                                }
+                            }
+                        }
+                    })
+                }
             }
 
             return true

@@ -1,31 +1,32 @@
 "use client"
 
 // import Image from "next/image"
-import React, { useEffect, useState } from "react"
+import React, { Dispatch, SetStateAction, useEffect, useState } from "react"
 import { twMerge } from "tailwind-merge"
 import { CldUploadWidget, CldImage } from "next-cloudinary"
 import { deleteImage } from "@/actions/cloudinary.actions"
 import { Button } from "./Button"
+import { Prisma } from "@prisma/client"
 
 type Props = {
-    url: string | null
-    className?: string
+    image: Prisma.ImageCreateInput;
+    setImage: Dispatch<SetStateAction<Prisma.ImageCreateInput>>;
+    className?: string;
 }
 
-export function Avatar({ url, className, ...props }: Props) {
-    const [public_id, setPublic_id] = useState<string | null>(url)
+export function Avatar({ image, setImage, className, ...props }: Props) {
 
     const successHandler = (res: any, opts: any) => {
-        if (public_id !== null) {
-            deleteImage(public_id)
+        if (image.publicId !== null) {
+            deleteImage(image.publicId)
         }
-        setPublic_id(res.info?.public_id)
+        setImage({ publicId: res.info?.publicId, url: res.info?.secure_url })
     }
 
     const removeImage = () => {
-        if (public_id !== null) {
-            deleteImage(public_id)
-            setPublic_id(null)
+        if (image.publicId !== null) {
+            deleteImage(image.publicId)
+            setImage({ publicId: "", url: "" })
         }
     }
 
@@ -33,7 +34,7 @@ export function Avatar({ url, className, ...props }: Props) {
         <div className=' flex flex-col items-center justify-center gap-10'>
             <div
                 className={twMerge(
-                    " bg-secondary size-80 relative text-center rounded-full overflow-hidden border-dotted border-2 border-primary p-4",
+                    " bg-transparent size-80 relative text-center rounded-full overflow-hidden border-dotted border-2 border-primary text-white p-4",
                     className
                 )}
                 {...props}
@@ -48,18 +49,18 @@ export function Avatar({ url, className, ...props }: Props) {
                                 priority={true}
                                 onClick={() => open()}
                                 src={
-                                    public_id ||
+                                    image.publicId ||
                                     process.env.NEXT_PUBLIC_CAMERA_PUB_ID!
                                 }
                                 alt=''
                                 fill={true}
-                                className='p-0 size-80 object-cover'
+                                className='p-0 size-80 object-cover text-white'
                             />
                         )
                     }}
                 </CldUploadWidget>
             </div>
-            {public_id && <Button className='' onClick={removeImage}>Remove Image</Button>}
+            {image.publicId && <Button className='' onClick={removeImage}>Remove Image</Button>}
         </div>
     )
 }

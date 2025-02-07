@@ -45,7 +45,7 @@ export function Header() {
     
     const router = useRouter()
     const pathname = usePathname()
-    const { status } = useSession()
+    const { status, data } = useSession()
 
     return (
         pathname.includes("auth") ||
@@ -73,7 +73,11 @@ export function Header() {
 
                 <div className=" flex items-center justify-center gap-4 w-20">
                     {
-                        status !== "loading" && (status === "authenticated" ? <FaUser className={iconClassNames} />
+                        status !== "loading" && (status === "authenticated" ? (
+                            data.user?.image ?
+                                <Image src={data.user.image} width={40} height={40} alt="" className="rounded-full cursor-pointer" />
+                            : <FaUser className={iconClassNames} />
+                        )
                         : <Button onClick={() => router.push("auth/signin")}>Sign In</Button>)
                     }
                 </div>

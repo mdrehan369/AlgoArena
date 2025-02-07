@@ -5,6 +5,7 @@ import { Button, Container, FormField } from "@/components"
 import { Separator } from "@/components/Separator"
 import { setError } from "@/libs/features/Errors/errorSlice"
 import { useAppDispatch } from "@/libs/hooks"
+import { signinSchema } from "@/schemas/auth/signin"
 import { DEFAULT_LOGIN_REDIRECT } from "@/utils/constants"
 import { signIn } from "next-auth/react"
 import Image from "next/image"
@@ -14,13 +15,8 @@ import { FaGithub, FaGoogle } from "react-icons/fa"
 import { FaFacebook } from "react-icons/fa6"
 import { z } from "zod"
 
-const schema = z.object({
-    usernameOrEmail: z.string().min(1, "Username or Email is required!"),
-    password: z.string().min(1, "Password is required!")
-})
-
 export default function Signin() {
-    const { register, handleSubmit, formState: { isSubmitting, isValid } } = useForm<z.infer<typeof schema>>({
+    const { register, handleSubmit, formState: { isSubmitting, isValid } } = useForm<z.infer<typeof signinSchema>>({
         defaultValues: {
             usernameOrEmail: "",
             password: ""
@@ -30,7 +26,7 @@ export default function Signin() {
     const [showPass, setShowPass] = useState(false)
     const dispatch = useAppDispatch()
 
-    const onSubmit = async (data: z.infer<typeof schema>) => {
+    const onSubmit = async (data: z.infer<typeof signinSchema>) => {
         console.log("data: ", data)
         const isUserSignedUp = await checkUser(data.usernameOrEmail)
         if (isUserSignedUp.data)

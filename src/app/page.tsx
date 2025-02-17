@@ -2,12 +2,12 @@
 import { Button, Container } from "@/components"
 import AnimatedBeam from "@/components/animata/background/animated-beam"
 import WaveReveal from "@/components/animata/text/wave-reveal"
-import { Sword, SwordIcon } from "lucide-react"
+// import { Sword, SwordIcon } from "lucide-react"
 import { GiSwordClash } from "react-icons/gi"
 
 export default function Home() {
     return (
-        <Container>
+        <Container className="top-0">
             <AnimatedBeam className='w-full min-h-[100vh] h-auto text-white'>
                 <div className='w-full h-[100vh] flex flex-col items-center justify-center gap-10'>
                     <WaveReveal

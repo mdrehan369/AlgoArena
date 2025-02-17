@@ -8,7 +8,7 @@ type Props = {
 
 export function Container({children, className=''}: Props) {
     return (
-        <div className={twMerge('w-[100vw] min-h-[100vh]', className)}>
+        <div className={twMerge('w-[100vw] min-h-[100vh] top-[15vh] relative', className)}>
             {children}
         </div>
     )

@@ -5,6 +5,11 @@ import { Header } from "@/components"
 import { SessionProvider } from "next-auth/react"
 import { ErrorHandler } from "@/components/ErrorHandler"
 import StoreProvider from "./StoreProvider"
+// import { MantineProvider } from "@mantine/core"
+
+import '@mantine/core/styles.css';
+
+import { ColorSchemeScript, MantineProvider, mantineHtmlProps } from '@mantine/core';
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -39,15 +44,17 @@ export default function RootLayout({
     children: React.ReactNode
 }>) {
     return (
-        <html lang='en'>
+        <html lang='en' {...mantineHtmlProps} >
             <body
                 className={`${geistSans.variable} ${geistMono.variable} ${ostwald.variable} ${itim.variable} antialiased bg-background text-text-light font-itim relative`}
             >
                 <SessionProvider>
                     <StoreProvider>
-                        <ErrorHandler />
-                        <Header />
-                        {children}
+                        <MantineProvider>
+                            <ErrorHandler />
+                            <Header />
+                            {children}
+                        </MantineProvider>
                     </StoreProvider>
                 </SessionProvider>
             </body>

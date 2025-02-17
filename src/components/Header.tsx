@@ -28,8 +28,8 @@ const navElems = [
         icon: <FaTrophy size={15} />
     },
     {
-        path: "/practice",
-        name: "Practice",
+        path: "/problems",
+        name: "Problems",
         icon: <FaBullseye size={15} />
     },
     {
@@ -49,7 +49,7 @@ export function Header() {
 
     return (
         pathname.includes("auth") ||
-        <header className='bg-transparent fixed top-0 left-0 z-20 text-white w-full flex items-center justify-between px-10'>
+        <header className='bg-background fixed top-0 left-0 z-20 text-white w-full flex items-center justify-between px-10'>
             <div className='container mx-auto flex justify-between items-center p-4'>
                 <Image
                     src={"/logo.svg"}

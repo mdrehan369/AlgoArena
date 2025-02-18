@@ -1,10 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit'
-import errorReducer from "./features/Errors/errorSlice"
+import notificationReducer from "./features/Errors/notificationSlice"
 
 export const makeStore = () => {
   return configureStore({
     reducer: {
-        error: errorReducer
+        notification: notificationReducer
     },
   })
 }

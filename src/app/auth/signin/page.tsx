@@ -3,7 +3,7 @@
 import { checkUser } from "@/actions/user.actions"
 import { Button, Container, FormField } from "@/components"
 import { Separator } from "@/components/Separator"
-import { setError } from "@/libs/features/Errors/errorSlice"
+import { setError } from "@/libs/features/Errors/notificationSlice"
 import { useAppDispatch } from "@/libs/hooks"
 import { signinSchema } from "@/schemas/auth/signin"
 import { DEFAULT_LOGIN_REDIRECT } from "@/utils/constants"

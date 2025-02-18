@@ -3,13 +3,13 @@ import { Geist, Geist_Mono, Oswald, Itim } from "next/font/google"
 import "./globals.css"
 import { Header } from "@/components"
 import { SessionProvider } from "next-auth/react"
-import { ErrorHandler } from "@/components/ErrorHandler"
 import StoreProvider from "./StoreProvider"
 // import { MantineProvider } from "@mantine/core"
 
 import '@mantine/core/styles.css';
 
 import { ColorSchemeScript, MantineProvider, mantineHtmlProps } from '@mantine/core';
+import CustomNotification from "@/components/CustomNotification"
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -51,7 +51,7 @@ export default function RootLayout({
                 <SessionProvider>
                     <StoreProvider>
                         <MantineProvider>
-                            <ErrorHandler />
+                            <CustomNotification />
                             <Header />
                             {children}
                         </MantineProvider>

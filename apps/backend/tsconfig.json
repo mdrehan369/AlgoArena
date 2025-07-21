@@ -1,0 +1,12 @@
+{
+  "extends": "../../packages/typescript-config/base.json",
+  "compilerOptions": {
+        "module": "NodeNext",            // or "ESNext" (with limitations)
+    "moduleResolution": "NodeNext", // for proper ESM behavior
+    "target": "ES2020",              // or higher
+    "esModuleInterop": true,        // important for Fastify
+    "outDir": "dist",
+    "strict": true
+  },
+  "include": ["src"]
+}

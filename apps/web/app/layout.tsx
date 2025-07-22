@@ -1,31 +1,34 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
 import "./globals.css";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-});
+import '@mantine/core/styles.css';
+
+import { ColorSchemeScript, MantineProvider, mantineHtmlProps } from '@mantine/core';
+import Header from "../components/Header";
+import Footer from "../components/Footer";
 
 export const metadata: Metadata = {
-  title: "Algo Arena",
-  description: "A Platform For Programmers To Compete",
+    title: "Algo Arena",
+    description: "The Arena Built for Programmers, by Programmers.",
 };
 
 export default function RootLayout({
-  children,
+    children,
 }: Readonly<{
-  children: React.ReactNode;
+    children: React.ReactNode;
 }>) {
-  return (
-    <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        {children}
-      </body>
-    </html>
-  );
+    return (
+        <html lang="en" {...mantineHtmlProps}>
+            <head>
+                <ColorSchemeScript />
+            </head>
+            <body>
+                <MantineProvider>
+                    <Header />
+                    {children}
+                    <Footer />
+                </MantineProvider>
+            </body>
+        </html>
+    );
 }

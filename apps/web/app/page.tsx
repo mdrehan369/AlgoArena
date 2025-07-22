@@ -1,27 +1,16 @@
-import Image, { type ImageProps } from "next/image";
-import { Button } from "@repo/ui/button";
-import styles from "./page.module.css";
+import HeroSection from "../components/LandingPage/HeroSection"
+import Features from "../components/LandingPage/Features"
+import HowItWorks from "../components/LandingPage/HowItWorks"
+import CTA from "../components/LandingPage/CTA"
+import { Box } from "@mantine/core"
 
-type Props = Omit<ImageProps, "src"> & {
-  srcLight: string;
-  srcDark: string;
-};
-
-const ThemeImage = (props: Props) => {
-  const { srcLight, srcDark, ...rest } = props;
-
-  return (
-    <>
-      <Image {...rest} src={srcLight} className="imgLight" />
-      <Image {...rest} src={srcDark} className="imgDark" />
-    </>
-  );
-};
-
-export default function Home() {
-  return (
-    <div>
-        hello from algo arena
-    </div>
-  )
+export default function AlgoArenaLanding() {
+    return (
+        <Box style={{ backgroundColor: "#0f172a", minHeight: "100vh" }}>
+            <HeroSection />
+            <Features />
+            <HowItWorks />
+            <CTA />
+        </Box>
+    )
 }

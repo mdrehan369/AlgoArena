@@ -1,3 +1,4 @@
+"use client"
 
 import {
     Container,
@@ -11,7 +12,13 @@ import {
 import {
     IconCode,
 } from "@tabler/icons-react"
+import { useSession } from "../lib/auth-client"
+import { useRouter } from "next/navigation"
+import ProfileMenu from "./profile/ProfileMenu"
 export default function Header() {
+    const router = useRouter()
+    const session = useSession()
+
     return (
         <Box
             style={{
@@ -35,19 +42,26 @@ export default function Header() {
                     </Group>
 
                     <Group visibleFrom="md">
+                        <Anchor href="/problems" c="gray.4" style={{ textDecoration: "none" }}>
+                            Problems
+                        </Anchor>
+                        <Anchor href="/leaderboard" c="gray.4" style={{ textDecoration: "none" }}>
+                            Leaderboard
+                        </Anchor>
                         <Anchor href="#features" c="gray.4" style={{ textDecoration: "none" }}>
                             Features
                         </Anchor>
                         <Anchor href="#how-it-works" c="gray.4" style={{ textDecoration: "none" }}>
                             How it Works
                         </Anchor>
-                        <Anchor href="#pricing" c="gray.4" style={{ textDecoration: "none" }}>
-                            Pricing
-                        </Anchor>
-                        <Button variant="outline" color="teal">
-                            Sign In
-                        </Button>
+                        {
+                            !session.data &&
+                            <Button variant="outline" color="teal" onClick={() => router.push("/login")}>
+                                Sign In
+                            </Button>
+                        }
                         <Button color="teal">Get Started</Button>
+                        <ProfileMenu />
                     </Group>
                 </Group>
             </Container>

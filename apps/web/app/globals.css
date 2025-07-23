@@ -55,3 +55,16 @@ a {
     display: unset;
   }
 }
+
+@theme {
+  --color-secondary-light: #133349;
+  --color-secondary-default: #10263a;
+  --color-secondary-dark: #162033;
+  --color-secondary-darker: #0f172a;
+
+  --color-primary-default: #12b886;
+  --color-primary-background: #19343f;
+
+  --color-text-white: #ffffff;
+  --color-text-gray: #d2e0e5;
+}

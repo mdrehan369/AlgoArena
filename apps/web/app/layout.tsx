@@ -6,6 +6,7 @@ import '@mantine/core/styles.css';
 import { ColorSchemeScript, MantineProvider, mantineHtmlProps } from '@mantine/core';
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import { validateConfig } from "../config/envConfig.ts"
 
 export const metadata: Metadata = {
     title: "Algo Arena",
@@ -17,6 +18,7 @@ export default function RootLayout({
 }: Readonly<{
     children: React.ReactNode;
 }>) {
+    validateConfig()
     return (
         <html lang="en" {...mantineHtmlProps}>
             <head>

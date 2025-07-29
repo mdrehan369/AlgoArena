@@ -21,18 +21,6 @@ enum Provider {
   CREDENTIALS
 }
 
-// model User {
-//   id       Int      @id @unique @default(autoincrement())
-//   name     String
-//   username String   @unique
-//   email    String
-//   password String   @default("")
-//   provider Provider @default(CREDENTIALS)
-//
-//   submittedResults SubmittedResult[]
-//   profilePic       Image?
-// }
-
 model User {
   id            String    @id
   name          String
@@ -43,6 +31,8 @@ model User {
   updatedAt     DateTime
   sessions      Session[]
   accounts      Account[]
+
+  submittedResults SubmittedResult[]
 
   @@unique([email])
   @@map("user")
@@ -93,99 +83,108 @@ model Verification {
   @@map("verification")
 }
 
+enum Language {
+  CPP
+  C
+  JS
+  PYTHON
+}
 
-// model Image {
-//   id       Int    @id @unique @default(autoincrement())
-//   publicId String
-//   url      String
-//   userId   Int?   @unique
-//   user     User?  @relation(fields: [userId], references: [id], onDelete: Cascade)
-// }
-//
-// enum Language {
-//   CPP
-//   C
-//   JS
-//   PYTHON
-// }
-//
-// model TestCase {
-//   id        Int     @id @unique @default(autoincrement())
-//   problemId Int
-//   problem   Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
-// }
-//
-// enum Level {
-//   EASY
-//   MEDIUM
-//   HARD
-// }
-//
-// model Problem {
-//   id          Int     @id @unique @default(autoincrement())
-//   title       String  @unique
-//   description String
-//   topics      Topic[]
-//   level       Level   @default(EASY)
-//   driverCode  String
-//
-//   testCases        TestCase[]
-//   exampleTestCases ExampleTestCases[]
-//   submittedResults SubmittedResult[]
-//   createdAt        DateTime           @default(now())
-// }
-//
-// model ExampleTestCases {
-//   id          Int     @id @unique @default(autoincrement())
-//   problemId   Int
-//   input       String
-//   description String
-//   output      String
-//   problem     Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
-// }
-//
-// model SubmittedResult {
-//   id         Int      @id @unique @default(autoincrement())
-//   problemId  Int
-//   userId     Int
-//   code       String
-//   isAccepted Boolean  @default(false)
-//   language   Language
-//   runtime    Float
-//
-//   problem   Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
-//   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-//   createdAt DateTime @default(now())
-// }
-//
-// enum Topic {
-//   ARRAY
-//   STRING
-//   TWO_POINTERS
-//   SLIDING_WINDOW
-//   PREFIX_SUM
-//   BIT_MANIPULATION
-//   LINKED_LIST
-//   STACK
-//   QUEUE
-//   HASH_TABLE
-//   HEAP
-//   GRAPH
-//   BINARY_TREE
-//   BINARY_SEARCH_TREE
-//   TRIE
-//   SEGMENT_TREE
-//   FENWICK_TREE
-//   UNION_FIND
-//   DOUBLY_LINKED_LIST
-//   DEQUE
-//   RECURSION
-//   BACKTRACKING
-//   BINARY_SEARCH
-//   SORTING
-//   GREEDY
-//   DYNAMIC_PROGRAMMING
-//   NUMBER_THEORY
-//   BITWISE_OPERATIONS
-//   SUFFIX_ARRAY
-// }
+model TestCase {
+  id        Int     @id @unique @default(autoincrement())
+  problemId Int
+  input     String
+  output    String
+  problem   Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  hidden    Boolean @default(false)
+}
+
+enum Level {
+  STARTER
+  APPRENTICE
+  CHALLENGER
+  EXPERT
+  LEGENDARY
+}
+
+model DriverCode {
+  id         Int      @id @unique @default(autoincrement())
+  language   Language @default(CPP)
+  beforeCode String
+  afterCode  String
+  problemId  Int
+  Problem    Problem  @relation(fields: [problemId], references: [id])
+}
+
+model Problem {
+  id          Int          @id @unique @default(autoincrement())
+  title       String       @unique
+  description String
+  slug        String       @unique
+  constraints String[]
+  topics      Topic[]
+  level       Level        @default(STARTER)
+  driverCodes DriverCode[]
+  acceptanceRate Float       @default(0)
+
+  testCases        TestCase[]
+  exampleTestCases ExampleTestCases[]
+  submittedResults SubmittedResult[]
+  createdAt        DateTime           @default(now())
+}
+
+model ExampleTestCases {
+  id          Int     @id @unique @default(autoincrement())
+  problemId   Int
+  input       String
+  description String
+  output      String
+  problem     Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+}
+
+model SubmittedResult {
+  id              Int      @id @unique @default(autoincrement())
+  problemId       Int
+  userId          String
+  code            String
+  isAccepted      Boolean  @default(false)
+  language        Language
+  runtime         Float
+  testCasesPassed Int      @default(0)
+
+  problem   Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+enum Topic {
+  ARRAY
+  STRING
+  TWO_POINTERS
+  SLIDING_WINDOW
+  PREFIX_SUM
+  BIT_MANIPULATION
+  LINKED_LIST
+  STACK
+  QUEUE
+  HASH_TABLE
+  HEAP
+  GRAPH
+  BINARY_TREE
+  BINARY_SEARCH_TREE
+  TRIE
+  SEGMENT_TREE
+  FENWICK_TREE
+  UNION_FIND
+  DOUBLY_LINKED_LIST
+  DEQUE
+  RECURSION
+  BACKTRACKING
+  BINARY_SEARCH
+  SORTING
+  GREEDY
+  DYNAMIC_PROGRAMMING
+  NUMBER_THEORY
+  BITWISE_OPERATIONS
+  SUFFIX_ARRAY
+}

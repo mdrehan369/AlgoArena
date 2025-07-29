@@ -7,23 +7,52 @@ import { config } from "dotenv"
 import { EnvConfig, envOptions } from "./config/env.config.ts"
 import logger from "./config/logger.config.ts"
 import { swaggerConfig, swaggerUiConfig } from "./config/swagger.config.ts"
+import type { ZodTypeProvider } from "fastify-type-provider-zod"
+import { problemController } from "./modules/problems/problem.controller.ts"
+import prismaPlugin from "./plugins/prisma.ts"
+import cors from "@fastify/cors"
+import cookies from "@fastify/cookie"
+import authPlugin from "./plugins/auth.plugin.ts"
+import queryParserPlugin from "./plugins/queryParser.plugin.ts"
 
 config()
 const fastify = Fastify({
-    logger: logger
+    logger: logger,
+    ajv: {
+        customOptions: {
+            coerceTypes: true
+        }
+    }
 })
 
-fastify.register(fastifyMultipart, {
+fastify.withTypeProvider<ZodTypeProvider>()
+
+await fastify.register(fastifyMultipart, {
     limits: {
         fileSize: 10 * 1024 * 1024 // 10 MB
     }
 })
 
-fastify.register(fastifyEnv, envOptions)
+await fastify.register(fastifyEnv, envOptions)
 
-fastify.register(swagger, swaggerConfig)
+await fastify.register(swagger, swaggerConfig)
 
-fastify.register(swaggerui, swaggerUiConfig)
+await fastify.register(swaggerui, swaggerUiConfig)
+
+await fastify.register(cookies, {
+    secret: fastify.getEnvs<EnvConfig>().COOKIE
+})
+
+await fastify.register(queryParserPlugin)
+
+await fastify.register(prismaPlugin)
+
+await fastify.register(cors, {
+    origin: "http://localhost:3000", // your frontend origin
+    credentials: true, // allow cookies to be sent
+})
+
+await fastify.register(authPlugin, { prefix: "/api2" })
 
 fastify.get("/", {
     schema: {
@@ -46,12 +75,13 @@ fastify.get("/", {
     }
 })
 
+fastify.register(problemController, { prefix: '/api/v1/problems' })
 
 
 const start = async () => {
     try {
         fastify.ready(async (err) => {
-            if(err) throw err
+            if (err) throw err
             const PORT = fastify.getEnvs<EnvConfig>().PORT
             await fastify.listen({ port: PORT })
             fastify.log.info(`Server is listening on port ${PORT}`)

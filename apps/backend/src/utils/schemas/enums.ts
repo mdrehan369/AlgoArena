@@ -1,0 +1,14 @@
+
+import { z } from 'zod'
+
+export const ProviderEnum = z.enum(["GOOGLE", "FACEBOOK", "GITHUB", "CREDENTIALS"])
+export const LanguageEnum = z.enum(["CPP", "C", "JS", "PYTHON"])
+export const LevelEnum = z.enum(["STARTER", "APPRENTICE", "CHALLENGER", "EXPERT", "LEGENDARY"])
+export const TopicEnum = z.enum([
+  "ARRAY", "STRING", "TWO_POINTERS", "SLIDING_WINDOW", "PREFIX_SUM", "BIT_MANIPULATION",
+  "LINKED_LIST", "STACK", "QUEUE", "HASH_TABLE", "HEAP", "GRAPH", "BINARY_TREE",
+  "BINARY_SEARCH_TREE", "TRIE", "SEGMENT_TREE", "FENWICK_TREE", "UNION_FIND",
+  "DOUBLY_LINKED_LIST", "DEQUE", "RECURSION", "BACKTRACKING", "BINARY_SEARCH",
+  "SORTING", "GREEDY", "DYNAMIC_PROGRAMMING", "NUMBER_THEORY",
+  "BITWISE_OPERATIONS", "SUFFIX_ARRAY"
+])

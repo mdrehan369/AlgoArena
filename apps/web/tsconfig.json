@@ -5,7 +5,13 @@
       {
         "name": "next"
       }
-    ]
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "@components/*": ["components/*"],
+      "@lib/*": ["lib/*"],
+      "@utils/*": ["utils/*"]
+    }
   },
   "include": [
     "**/*.ts",
@@ -16,10 +22,5 @@
   ],
   "exclude": [
     "node_modules"
-  ],
-    "paths": {
-        "components": ["/components/*"],
-        "utils": ["/utils/*"],
-        "lib": ["/lib/*"]
-    }
+  ]
 }

@@ -4,9 +4,8 @@ import "./globals.css";
 import '@mantine/core/styles.css';
 
 import { ColorSchemeScript, MantineProvider, mantineHtmlProps } from '@mantine/core';
-import Header from "../components/Header";
-import Footer from "../components/Footer";
-import { validateConfig } from "../config/envConfig.ts"
+import Providers from "./Providers.tsx";
+import { validateConfig } from "config/env.config.ts";
 
 export const metadata: Metadata = {
     title: "Algo Arena",
@@ -26,9 +25,9 @@ export default function RootLayout({
             </head>
             <body>
                 <MantineProvider>
-                    <Header />
-                    {children}
-                    <Footer />
+                    <Providers>
+                        {children}
+                    </Providers>
                 </MantineProvider>
             </body>
         </html>

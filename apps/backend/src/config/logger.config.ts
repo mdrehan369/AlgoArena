@@ -6,9 +6,11 @@ const logger = {
             translateTime: 'HH:MM:ss',
             ignore: 'pid,hostname',
             singleLine: true,
-            levelFirst: true
+            levelFirst: true,
         }
-    }
+    },
+    sync: true
+
 }
 
 export default logger

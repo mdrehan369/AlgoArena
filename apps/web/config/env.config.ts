@@ -20,17 +20,17 @@ interface AppConfig {
     environment?: 'development' | 'production' | 'test';
     authConfig: AuthConfig;
     databaseConfig: DatabaseConfig;
+    backendUrl: string;
 }
 
 const envs = process.env
 
 export const validateConfig = () => {
 
-    const requiredEnvs = ['BETTER_AUTH_SECRET', 'BETTER_AUTH_URL', 'GITHUB_CLIENT_SECRET', 'GITHUB_CLIENT_ID', 'GOOGLE_CLIENT_SECRET', 'GOOGLE_CLIENT_ID', 'FACEBOOK_CLIENT_ID', 'FACEBOOK_CLIENT_SECRET', 'DATABASE_URL']
+    const requiredEnvs = ['BETTER_AUTH_SECRET', 'BETTER_AUTH_URL', 'GITHUB_CLIENT_SECRET', 'GITHUB_CLIENT_ID', 'GOOGLE_CLIENT_SECRET', 'GOOGLE_CLIENT_ID', 'FACEBOOK_CLIENT_ID', 'FACEBOOK_CLIENT_SECRET', 'DATABASE_URL', 'BACKEND_URL']
 
     requiredEnvs.forEach((env) => {
         if(!Object.keys(envs).find(val => val == env)) throw new Error(`${env} environment variable is missing!`)
-        console.log(`Environment variable ${env} is set.`)
     })
 
 
@@ -57,6 +57,7 @@ export const appConfig: AppConfig = {
         },
         databaseConfig: {
             url: envs.DATABASE_URL!
-        }
+        },
+        backendUrl: envs.BACKEND_URL || "http://localhost:5000/api/v1"
     }
 

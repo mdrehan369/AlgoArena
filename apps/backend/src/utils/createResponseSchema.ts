@@ -1,12 +1,12 @@
 
-export default function createResponseSchema<T>(ResponseDataType: T) {
+export default function createResponseSchema(ResponseDataSchema: Record<string, any>) {
     return {
         type: "object",
         required: [],
         properties: {
             success: { type: 'boolean', default: true },
             message: { type: 'string', default: 'ok' },
-            data: { type: ResponseDataType }
+            data: { ...ResponseDataSchema }
         }
     }
 }

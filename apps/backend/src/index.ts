@@ -4,16 +4,15 @@ import swaggerui from "@fastify/swagger-ui"
 import swagger from "@fastify/swagger"
 import fastifyEnv from "@fastify/env"
 import { config } from "dotenv"
-import { EnvConfig, envOptions } from "./config/env.config.ts"
-import logger from "./config/logger.config.ts"
-import { swaggerConfig, swaggerUiConfig } from "./config/swagger.config.ts"
-import type { ZodTypeProvider } from "fastify-type-provider-zod"
-import { problemController } from "./modules/problems/problem.controller.ts"
-import prismaPlugin from "./plugins/prisma.ts"
+import { EnvConfig, envOptions } from "./config/env.config"
+import logger from "./config/logger.config"
+import { swaggerConfig, swaggerUiConfig } from "./config/swagger.config"
+import { problemController } from "./modules/problems/problem.controller"
+import prismaPlugin from "./plugins/prisma"
 import cors from "@fastify/cors"
 import cookies from "@fastify/cookie"
-import authPlugin from "./plugins/auth.plugin.ts"
-import queryParserPlugin from "./plugins/queryParser.plugin.ts"
+import authPlugin from "./plugins/auth.plugin"
+import queryParserPlugin from "./plugins/queryParser.plugin"
 
 config()
 const fastify = Fastify({
@@ -24,8 +23,6 @@ const fastify = Fastify({
         }
     }
 })
-
-fastify.withTypeProvider<ZodTypeProvider>()
 
 await fastify.register(fastifyMultipart, {
     limits: {
@@ -48,7 +45,7 @@ await fastify.register(queryParserPlugin)
 await fastify.register(prismaPlugin)
 
 await fastify.register(cors, {
-    origin: "http://localhost:3000", // your frontend origin
+    origin: fastify.getEnvs<EnvConfig>().FRONTEND_URL, // your frontend origin
     credentials: true, // allow cookies to be sent
 })
 

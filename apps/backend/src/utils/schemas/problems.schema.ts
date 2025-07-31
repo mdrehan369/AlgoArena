@@ -1,20 +1,32 @@
-import { z } from 'zod'
-import { LevelEnum, TopicEnum } from './enums.ts'
+import SharedDefs from "./enums";
 
-export const ProblemSchema = z.object({
-  id: z.number(),
-  title: z.string(),
-  description: z.string(),
-  slug: z.string(),
-  constraints: z.array(z.string()),
-  topics: z.array(TopicEnum),
-  level: LevelEnum,
-  acceptanceRate: z.number(),
-  createdAt: z.date(),
-})
+const ProblemSchema = {
+  type: "object",
+  properties: {
+    id: { type: "integer" },
+    title: { type: "string" },
+    description: { type: "string" },
+    slug: { type: "string" },
+    constraints: {
+      type: "array",
+      items: { type: "string" },
+    },
+    topics: {
+      type: "array",
+      items: { ...SharedDefs.Topic },
+    },
+    level: { ...SharedDefs.Level },
+    acceptanceRate: { type: "number" },
+    createdAt: { ...SharedDefs.DateTime },
+  },
+  required: [
+    "title",
+    "description",
+    "slug",
+    "constraints",
+    "topics",
+    "level",
+  ],
+} as const;
 
-export const ProblemSchemaWithUserStatus = ProblemSchema.extend({
-    userStatus: z.enum(['solved', 'attempted', 'not-attempted']),
-})
-
-
+export default ProblemSchema

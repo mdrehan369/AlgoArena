@@ -1,6 +1,6 @@
 import { FastifyInstance, FastifyPluginCallback, FastifyRequest } from "fastify";
-import { GetAllProblemsSchema } from "../../schemas/problems/problem.get.ts";
-import { ProblemService } from "./problem.service.ts";
+import { GetAllProblemsSchema } from "../../schemas/problems/problem.get";
+import { ProblemService } from "./problem.service";
 import { Level, Topic } from "@repo/db";
 
 export const problemController: FastifyPluginCallback = (instance, opts, done) => {
@@ -32,7 +32,6 @@ export const problemController: FastifyPluginCallback = (instance, opts, done) =
         const { level, limit, page, search, status, topics } = request.query
 
         fastify.log.info("Fetching all problems");
-        fastify.log.info(`Params are ${request.query.topics}`)
         const problems = await fastify.problemService.getAllProblems(fastify.user.id, page, limit, status, topics, search, level)
 
         return reply.send({ data: problems });

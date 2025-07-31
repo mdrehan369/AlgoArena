@@ -9,13 +9,18 @@ const schema = {
         COOKIE: {
             type: 'string',
             default: 'supersecretcookiekey'
+        },
+        FRONTEND_URL: {
+            type: 'string',
+            default: 'http://localhost:3000'
         }
     }
 }
 
 export type EnvConfig = {
     PORT: number,
-    COOKIE: string
+    COOKIE: string,
+    FRONTEND_URL: string
 }
 
 export const envOptions = {

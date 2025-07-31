@@ -1,15 +1,19 @@
+import { SharedDefs } from ".";
 
-import { z } from 'zod'
-import { LanguageEnum } from './enums.ts'
+const SubmittedResultSchema = {
+    type: "object",
+    properties: {
+        id: { type: "integer" },
+        problemId: { type: "integer" },
+        userId: { type: "string" },
+        code: { type: "string" },
+        isAccepted: { type: "boolean", default: false },
+        language: { ...SharedDefs.Language },
+        runtime: { type: "number" },
+        testCasesPassed: { type: "integer" },
+        createdAt: { ...SharedDefs.DateTime },
+    },
+    required: ["problemId", "userId", "code", "language", "runtime"],
+} as const;
 
-export const SubmittedResultSchema = z.object({
-  id: z.number(),
-  problemId: z.number(),
-  userId: z.string(),
-  code: z.string(),
-  isAccepted: z.boolean().default(false),
-  language: LanguageEnum,
-  runtime: z.number(),
-  testCasesPassed: z.number().default(0),
-  createdAt: z.date(),
-})
+export default SubmittedResultSchema

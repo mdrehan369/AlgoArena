@@ -1,10 +1,13 @@
+const TestCaseSchema = {
+    type: "object",
+    properties: {
+        id: { type: "integer" },
+        problemId: { type: "integer" },
+        input: { type: "string" },
+        output: { type: "string" },
+        hidden: { type: "boolean", default: false },
+    },
+    required: ["problemId", "input", "output"],
+} as const;
 
-import { z } from 'zod'
-
-export const TestCaseSchema = z.object({
-  id: z.number(),
-  problemId: z.number(),
-  input: z.string(),
-  output: z.string(),
-  hidden: z.boolean().default(false),
-})
+export default TestCaseSchema

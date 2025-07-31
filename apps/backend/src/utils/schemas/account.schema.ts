@@ -1,18 +1,26 @@
+import { SharedDefs } from ".";
 
-import { z } from 'zod'
+const AccountSchema = {
+    type: "object",
+    properties: {
+        id: { type: "string" },
+        accountId: { type: "string" },
+        providerId: { type: "string" },
+        userId: { type: "string" },
+        accessToken: { type: "string", nullable: true },
+        refreshToken: { type: "string", nullable: true },
+        idToken: { type: "string", nullable: true },
+        accessTokenExpiresAt: { ...SharedDefs.DateTime, nullable: true },
+        refreshTokenExpiresAt: { ...SharedDefs.DateTime, nullable: true },
+        scope: { type: "string", nullable: true },
+        password: { type: "string", nullable: true },
+        createdAt: { ...SharedDefs.DateTime },
+        updatedAt: { ...SharedDefs.DateTime },
+    },
+    required: [
+        "id", "accountId", "providerId", "userId",
+        "createdAt", "updatedAt"
+    ]
+} as const;
 
-export const AccountSchema = z.object({
-  id: z.string(),
-  accountId: z.string(),
-  providerId: z.string(),
-  userId: z.string(),
-  accessToken: z.string().optional().nullable(),
-  refreshToken: z.string().optional().nullable(),
-  idToken: z.string().optional().nullable(),
-  accessTokenExpiresAt: z.date().optional().nullable(),
-  refreshTokenExpiresAt: z.date().optional().nullable(),
-  scope: z.string().optional().nullable(),
-  password: z.string().optional().nullable(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-})
+export default AccountSchema

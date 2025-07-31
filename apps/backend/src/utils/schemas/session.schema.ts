@@ -1,13 +1,18 @@
+import { SharedDefs } from ".";
 
-import { z } from 'zod'
+const SessionSchema = {
+    type: "object",
+    properties: {
+        id: { type: "string" },
+        expiresAt: { $ref: "#/$defs/DateTime" },
+        token: { type: "string" },
+        createdAt: { ...SharedDefs.DateTime },
+        updatedAt: { ...SharedDefs.DateTime },
+        ipAddress: { type: "string", nullable: true },
+        userAgent: { type: "string", nullable: true },
+        userId: { type: "string" }
+    },
+    required: ["id", "expiresAt", "token", "createdAt", "updatedAt", "userId"],
+} as const;
 
-export const SessionSchema = z.object({
-  id: z.string(),
-  expiresAt: z.date(),
-  token: z.string(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-  ipAddress: z.string().optional().nullable(),
-  userAgent: z.string().optional().nullable(),
-  userId: z.string(),
-})
+export default SessionSchema

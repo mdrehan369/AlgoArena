@@ -1,11 +1,16 @@
+import { SharedDefs } from ".";
 
-import { z } from 'zod'
+const VerificationSchema = {
+    type: "object",
+    properties: {
+        id: { type: "string" },
+        identifier: { type: "string" },
+        value: { type: "string" },
+        expiresAt: { ...SharedDefs.DateTime },
+        createdAt: { ...SharedDefs.DateTime, nullable: true },
+        updatedAt: { ...SharedDefs.DateTime, nullable: true },
+    },
+    required: ["id", "identifier", "value", "expiresAt"]
+} as const;
 
-export const VerificationSchema = z.object({
-  id: z.string(),
-  identifier: z.string(),
-  value: z.string(),
-  expiresAt: z.date(),
-  createdAt: z.date().optional().nullable(),
-  updatedAt: z.date().optional().nullable(),
-})
+export default VerificationSchema

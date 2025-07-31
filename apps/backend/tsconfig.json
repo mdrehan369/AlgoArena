@@ -1,13 +1,29 @@
 {
-  "extends": "@repo/typescript-config/base.json",
   "compilerOptions": {
-        "module": "NodeNext",            // or "ESNext" (with limitations)
-    "moduleResolution": "bundler", // for proper ESM behavior
-    "target": "ES2020",              // or higher
-    "esModuleInterop": true,        // important for Fastify
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "outDir": "dist",
+    // Remove rootDir to allow external files
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
     "strict": true,
-    "noEmit": true
+    "skipLibCheck": true,
+    "declaration": true,
+    "sourceMap": true,
+    "isolatedModules": true,
+    "composite": true,
+    "baseUrl": ".",
+    "paths": {
+      "@repo/db": ["../../packages/db/src/index.ts"]
+    }
   },
-  "include": ["src"]
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": ["node_modules", "dist"],
+  "references": [
+    { "path": "../../packages/db" }
+  ]
 }

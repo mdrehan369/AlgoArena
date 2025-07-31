@@ -1,8 +1,6 @@
 import { FastifySchema } from "fastify";
-import { ProblemSchemaWithUserStatus } from "../../utils/schemas/problems.schema.ts";
-import { z } from "zod";
-import { Level, Topic } from "@repo/db"
-import createResponseSchema from "../../utils/createResponseSchema.ts";
+import { ProblemSchema } from "../../utils/schemas";
+import createResponseSchema from "../../utils/createResponseSchema";
 
 export const GetAllProblemsSchema: FastifySchema = {
     description: "Get a list of problems",
@@ -15,12 +13,15 @@ export const GetAllProblemsSchema: FastifySchema = {
             page: { type: 'integer', default: 1, description: 'Page number for pagination', minimum: 1 },
             limit: { type: 'integer', default: 15, description: 'Number of problems per page', minimum: 1 },
             search: { type: 'string', default: "", description: "Search with problem name" },
-            level: { type: 'string', description: "Search with problem level", enum: Object.keys(Level) },
+            level: { type: 'string', description: "Search with problem level" },
             status: { type: 'string', description: "Search with problem status", enum: ["solved", "attempted", "not-attempted"] },
-            topics: { type: 'array', description: "Search with problem topics", items: { type: 'string', enum: Object.values(Topic) } }
+            topics: { type: 'array', description: "Search with problem topics", items: { type: 'string' } }
         }
     },
     response: {
-        200: z.array(ProblemSchemaWithUserStatus)
+        200: createResponseSchema({
+            type: "array",
+            items: { ...ProblemSchema }
+        })
     }
 }

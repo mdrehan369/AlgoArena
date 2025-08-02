@@ -41,7 +41,7 @@ export default function ProblemsTable() {
 
     const { data, isFetching } = useQuery<ProblemWithUserStatus[]>({
         queryKey: [...ProblemsQueryKeys, queryParams],
-        queryFn: () => getProblems(queryParams),
+        queryFn: async () => getProblems(queryParams),
         initialData: []
     })
 

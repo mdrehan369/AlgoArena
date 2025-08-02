@@ -1,6 +1,6 @@
 import { FastifyInstance, FastifyPluginCallback, FastifyRequest } from "fastify";
-import { GetAllProblemsSchema } from "../../schemas/problems/problem.get";
-import { ProblemService } from "./problem.service";
+import { GetAllProblemsSchema } from "../../schemas/problems/problem.get.js";
+import { ProblemService } from "./problem.service.js";
 import { Level, Topic } from "@repo/db";
 
 export const problemController: FastifyPluginCallback = (instance, opts, done) => {

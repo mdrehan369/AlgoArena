@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import {
     Text,
     Card,
@@ -10,8 +12,21 @@ import {
     IconClock,
     IconUsers,
 } from "@tabler/icons-react"
+import api from "config/axios.config"
 
-export default function Stats() {
+export default async function Stats() {
+    // Fallback values
+    let problemsSolved = 42, totalAttempts = 50, globalRank = 100
+
+    try {
+        const { data } = await api.get("/stats")
+        problemsSolved = data.data.problemsSolved
+        totalAttempts = data.data.totalAttempts
+        globalRank = data.data.globalRank
+    } catch (error) {
+        console.log("Error while fetching stats", error)
+    }
+
     return (
         <Group mb="xl" grow>
             <Card
@@ -27,7 +42,7 @@ export default function Stats() {
                     </ThemeIcon>
                     <Stack gap={0}>
                         <Text c="white" fw={600} size="lg">
-                            42
+                            {problemsSolved}
                         </Text>
                         <Text c="gray.4" size="sm">
                             Problems Solved
@@ -49,7 +64,7 @@ export default function Stats() {
                     </ThemeIcon>
                     <Stack gap={0}>
                         <Text c="white" fw={600} size="lg">
-                            156
+                            {totalAttempts}
                         </Text>
                         <Text c="gray.4" size="sm">
                             Total Attempts
@@ -71,7 +86,7 @@ export default function Stats() {
                     </ThemeIcon>
                     <Stack gap={0}>
                         <Text c="white" fw={600} size="lg">
-                            #1,247
+                            #{globalRank}
                         </Text>
                         <Text c="gray.4" size="sm">
                             Global Rank

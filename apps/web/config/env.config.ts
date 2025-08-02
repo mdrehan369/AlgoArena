@@ -27,7 +27,7 @@ const envs = process.env
 
 export const validateConfig = () => {
 
-    const requiredEnvs = ['BETTER_AUTH_SECRET', 'BETTER_AUTH_URL', 'GITHUB_CLIENT_SECRET', 'GITHUB_CLIENT_ID', 'GOOGLE_CLIENT_SECRET', 'GOOGLE_CLIENT_ID', 'FACEBOOK_CLIENT_ID', 'FACEBOOK_CLIENT_SECRET', 'DATABASE_URL', 'BACKEND_URL']
+    const requiredEnvs = ['BETTER_AUTH_SECRET', 'BETTER_AUTH_URL', 'GITHUB_CLIENT_SECRET', 'GITHUB_CLIENT_ID', 'GOOGLE_CLIENT_SECRET', 'GOOGLE_CLIENT_ID', 'FACEBOOK_CLIENT_ID', 'FACEBOOK_CLIENT_SECRET', 'DATABASE_URL', 'NEXT_PUBLIC_BACKEND_URL']
 
     requiredEnvs.forEach((env) => {
         if(!Object.keys(envs).find(val => val == env)) throw new Error(`${env} environment variable is missing!`)
@@ -37,7 +37,7 @@ export const validateConfig = () => {
 }
 
 export const appConfig: AppConfig = {
-        url: envs.FRONTENT_URL || "http://localhost:3000",
+        url: envs.FRONTEND_URL || "http://localhost:3000",
         environment: envs.NODE_ENV || "development",
         authConfig: {
             betterAuthSecret: envs.BETTER_AUTH_SECRET!,
@@ -58,6 +58,6 @@ export const appConfig: AppConfig = {
         databaseConfig: {
             url: envs.DATABASE_URL!
         },
-        backendUrl: envs.BACKEND_URL || "http://localhost:5000/api/v1"
+        backendUrl: envs.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000/api/v1"
     }
 

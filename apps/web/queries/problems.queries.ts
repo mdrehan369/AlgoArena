@@ -11,7 +11,7 @@ export const getProblems = async (params: {
 }) => {
     try {
         const response = await api.get('/problems', { params })
-        return response.data
+        return response.data.data
     } catch (error) {
         console.log("Error while fetching problems", error)
     }

@@ -1,6 +1,6 @@
 import { FastifySchema } from "fastify";
-import { ProblemSchema } from "../../utils/schemas";
-import createResponseSchema from "../../utils/createResponseSchema";
+import { ProblemSchema } from "../../utils/schemas/index.js";
+import createResponseSchema from "../../utils/createResponseSchema.js";
 
 export const GetAllProblemsSchema: FastifySchema = {
     description: "Get a list of problems",

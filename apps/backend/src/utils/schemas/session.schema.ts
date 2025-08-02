@@ -1,4 +1,4 @@
-import { SharedDefs } from ".";
+import { SharedDefs } from "./index.js";
 
 const SessionSchema = {
     type: "object",

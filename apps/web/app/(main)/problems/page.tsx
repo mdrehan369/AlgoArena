@@ -2,7 +2,7 @@ import {
     Container,
     Box,
 } from "@mantine/core"
-import Stats from "@components/problems/Stats"
+// import Stats from "@components/problems/Stats"
 import { secondaryColors } from "@utils/colors"
 import PageHeader from "@components/PageHeader"
 import Filters from "@components/problems/Filters"
@@ -17,7 +17,6 @@ export default function ProblemsPage() {
         <Box style={{ backgroundColor: secondaryColors.DARKER, minHeight: "100vh" }}>
             <PageHeader heading="Problems" />
             <Container size="xl" py="xl">
-                <Stats />
                 <Filters />
                 <ProblemsTable />
                 <ProblemsPagination />

@@ -4,15 +4,16 @@ import swaggerui from "@fastify/swagger-ui"
 import swagger from "@fastify/swagger"
 import fastifyEnv from "@fastify/env"
 import { config } from "dotenv"
-import { EnvConfig, envOptions } from "./config/env.config"
-import logger from "./config/logger.config"
-import { swaggerConfig, swaggerUiConfig } from "./config/swagger.config"
-import { problemController } from "./modules/problems/problem.controller"
-import prismaPlugin from "./plugins/prisma"
+import { EnvConfig, envOptions } from "./config/env.config.js"
+import logger from "./config/logger.config.js"
+import { swaggerConfig, swaggerUiConfig } from "./config/swagger.config.js"
+import { problemController } from "./modules/problems/problem.controller.js"
+import prismaPlugin from "./plugins/prisma.js"
 import cors from "@fastify/cors"
 import cookies from "@fastify/cookie"
-import authPlugin from "./plugins/auth.plugin"
-import queryParserPlugin from "./plugins/queryParser.plugin"
+import authPlugin from "./plugins/auth.plugin.js"
+import queryParserPlugin from "./plugins/queryParser.plugin.js"
+import { statController } from "./modules/stats/stat.controller.js"
 
 config()
 const fastify = Fastify({
@@ -49,7 +50,7 @@ await fastify.register(cors, {
     credentials: true, // allow cookies to be sent
 })
 
-await fastify.register(authPlugin, { prefix: "/api2" })
+await fastify.register(authPlugin, { prefix: "/api" })
 
 fastify.get("/", {
     schema: {
@@ -73,6 +74,7 @@ fastify.get("/", {
 })
 
 fastify.register(problemController, { prefix: '/api/v1/problems' })
+fastify.register(statController, { prefix: '/api/v1/stats' })
 
 
 const start = async () => {

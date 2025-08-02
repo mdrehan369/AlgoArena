@@ -1,5 +1,5 @@
 import { Level, PrismaClient, Topic, Prisma, SubmittedResult } from "@repo/db";
-import { ProblemRepository } from "./problem.repository";
+import { ProblemRepository } from "./problem.repository.js";
 
 export class ProblemService {
     private prisma: PrismaClient

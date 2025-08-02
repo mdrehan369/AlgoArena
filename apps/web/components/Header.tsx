@@ -15,6 +15,32 @@ import {
 import { useSession } from "../lib/auth-client"
 import { useRouter } from "next/navigation"
 import ProfileMenu from "./profile/ProfileMenu"
+import Link from "next/link"
+
+type NavItems = {
+    name: string,
+    href: string
+}
+
+const navItems: NavItems[] = [
+    {
+        name: "Problems",
+        href: "/problems"
+    },
+    {
+        name: "Leaderboard",
+        href: "/leaderboard"
+    },
+    {
+        name: "Features",
+        href: "#features"
+    },
+    {
+        name: "How It Works",
+        href: "#how-it-works"
+    }
+]
+
 export default function Header() {
     const router = useRouter()
     const session = useSession()
@@ -42,18 +68,12 @@ export default function Header() {
                     </Group>
 
                     <Group visibleFrom="md">
-                        <Anchor href="/problems" c="gray.4" style={{ textDecoration: "none" }}>
-                            Problems
-                        </Anchor>
-                        <Anchor href="/leaderboard" c="gray.4" style={{ textDecoration: "none" }}>
-                            Leaderboard
-                        </Anchor>
-                        <Anchor href="#features" c="gray.4" style={{ textDecoration: "none" }}>
-                            Features
-                        </Anchor>
-                        <Anchor href="#how-it-works" c="gray.4" style={{ textDecoration: "none" }}>
-                            How it Works
-                        </Anchor>
+                        {
+                            navItems.map(item =>
+                                <Anchor component={Link} key={item.href} href={item.href} c="gray.4" style={{ textDecoration: "none" }}>
+                                    {item.name}
+                                </Anchor>)
+                        }
                         {
                             !session.data &&
                             <Button variant="outline" color="teal" onClick={() => router.push("/login")}>

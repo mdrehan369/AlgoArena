@@ -16,6 +16,8 @@ export const levelLabels = {
 
 export const ProblemsQueryKeys = ["problems"]
 
+export const StatsQueryKeys = ["keys"]
+
 export const topicOptions = [
   'ARRAY',
   'STRING',

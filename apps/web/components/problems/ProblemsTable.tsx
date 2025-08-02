@@ -19,6 +19,7 @@ export default function ProblemsTable() {
     const { page, limit, problems } = useAppSelector(state => state.problem)
     const dispatch = useAppDispatch()
 
+
     const getStatusIcon = (status: string) => {
         switch (status) {
             case "solved":
@@ -31,13 +32,13 @@ export default function ProblemsTable() {
     }
 
     const queryParams = {
-            page,
-            limit,
-            level: selectedLevel || undefined,
-            search: searchQuery,
-            status: selectedStatus || undefined,
-            topics: selectedTopics
-        }
+        page,
+        limit,
+        level: selectedLevel || undefined,
+        search: searchQuery,
+        status: selectedStatus || undefined,
+        topics: selectedTopics
+    }
 
     const { data, isFetching } = useQuery<ProblemWithUserStatus[]>({
         queryKey: [...ProblemsQueryKeys, queryParams],

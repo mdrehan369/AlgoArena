@@ -1,4 +1,4 @@
-export const dynamic = 'force-dynamic'
+"use client"
 
 import {
     Text,
@@ -12,22 +12,22 @@ import {
     IconClock,
     IconUsers,
 } from "@tabler/icons-react"
-import api from "config/axios.config"
+import { useQuery } from "@tanstack/react-query"
+import { StatsQueryKeys } from "@utils/constants"
+import { getBasicStats } from "queries/stats.queries"
 
-export default async function Stats() {
-    // Fallback values
-    let problemsSolved = 42, totalAttempts = 50, globalRank = 100
+export default function Stats() {
 
-    try {
-        const { data } = await api.get("/stats")
-        problemsSolved = data.data.problemsSolved
-        totalAttempts = data.data.totalAttempts
-        globalRank = data.data.globalRank
-    } catch (error) {
-        console.log("Error while fetching stats", error)
-    }
+    const { data, isFetching } = useQuery({
+        initialData: { data: { problemsSolved: 42, totalAttempts: 50, globalRank: 100 } },
+        queryKey: [...StatsQueryKeys],
+        queryFn: async () => getBasicStats()
+    })
+
+    const { problemsSolved, totalAttempts, globalRank } = data.data
 
     return (
+        !isFetching &&
         <Group mb="xl" grow>
             <Card
                 padding="lg"

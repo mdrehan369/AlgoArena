@@ -6,11 +6,18 @@ import { Card, Group, MultiSelect, Select, TextInput } from "@mantine/core";
 import { IconSearch } from "@tabler/icons-react";
 import { primaryColors, secondaryColors } from "@utils/colors";
 import { topicOptions } from "@utils/constants";
+import useDebounce from "hooks/useDebounce";
 
 export default function Filters() {
 
     const { searchQuery, selectedLevel, selectedStatus, selectedTopics } = useAppSelector(state => state.problem.filters)
     const dispatch = useAppDispatch()
+
+    const { debounceValue, setDebounceValue } = useDebounce({
+        initialState: searchQuery,
+        action: (val) => dispatch(setFilters({ filter: "searchQuery", value: val })),
+        timeout: 2000
+    })
 
     return (
         <Card
@@ -25,8 +32,8 @@ export default function Filters() {
                 <TextInput
                     placeholder="Search problems..."
                     leftSection={<IconSearch size={16} />}
-                    value={searchQuery}
-                    onChange={(e) => dispatch(setFilters({ filter: "searchQuery", value: e.target.value }))}
+                    value={debounceValue}
+                    onChange={(e) => setDebounceValue(e.target.value)}
                     styles={{
                         input: {
                             backgroundColor: secondaryColors.DARKER,

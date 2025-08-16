@@ -1,41 +1,60 @@
-import { FastifyInstance, FastifyPluginCallback, FastifyRequest } from "fastify";
-import { GetAllProblemsSchema } from "../../schemas/problems/problem.get.js";
+import { FastifyInstance, FastifyPluginCallback, FastifyReply, FastifyRequest } from "fastify";
+import { GetAllProblemsSchema, GetProblemBySlug } from "../../schemas/problems/problem.get.js";
 import { ProblemService } from "./problem.service.js";
 import { Level, Topic } from "@repo/db";
 
 export const problemController: FastifyPluginCallback = (instance, opts, done) => {
 
-    const fastify = instance as FastifyInstance & {
-        problemService: ProblemService
+  const fastify = instance as FastifyInstance & {
+    problemService: ProblemService
+  }
+
+  fastify.decorate("problemService", new ProblemService(fastify.prisma))
+
+  fastify.get("/", {
+    schema: GetAllProblemsSchema
+  }, async (request: FastifyRequest<{
+    Querystring: {
+      page?: number,
+      limit?: number,
+      search?: string,
+      level?: Level,
+      status?: "solved" | "attempted" | "not-attempted",
+      topics?: Topic[]
+    }
+  }>, reply) => {
+
+    if (!fastify.user) {
+      fastify.log.warn("Unauthorized access attempt to problems endpoint");
+      return reply.status(401).send({ error: "Unauthorized" });
     }
 
-    fastify.decorate("problemService", new ProblemService(fastify.prisma))
+    const { level, limit, page, search, status, topics } = request.query
 
-    fastify.get("/", {
-        schema: GetAllProblemsSchema
-    }, async (request: FastifyRequest<{
-        Querystring: {
-            page?: number,
-            limit?: number,
-            search?: string,
-            level?: Level,
-            status?: "solved" | "attempted" | "not-attempted",
-            topics?: Topic[]
-        }
-    }>, reply) => {
+    fastify.log.info("Fetching all problems");
+    const problems = await fastify.problemService.getAllProblems(fastify.user.id, page, limit, status, topics, search, level)
 
-        if (!fastify.user) {
-            fastify.log.warn("Unauthorized access attempt to problems endpoint");
-            return reply.status(401).send({ error: "Unauthorized" });
-        }
+    return reply.send({ data: problems });
+  });
 
-        const { level, limit, page, search, status, topics } = request.query
+  fastify.get("/problem/:slug", {
+    schema: GetProblemBySlug,
+  }, async (request: FastifyRequest<{ Params: { slug: string } }>, reply: FastifyReply) => {
 
-        fastify.log.info("Fetching all problems");
-        const problems = await fastify.problemService.getAllProblems(fastify.user.id, page, limit, status, topics, search, level)
+    const slug = request.params.slug
+    if (!slug) {
+      fastify.log.error("No slug given!")
+      return reply.status(400).send({ success: false, message: "No slug found" })
+    }
 
-        return reply.send({ data: problems });
-    });
+    const response = await fastify.problemService.getProblemBySlug(slug)
+    if (!response.success) {
+      fastify.log.error("No problem found!")
+      return reply.status(404).send({ success: false, message: "No problem found!" })
+    }
 
-    done();
+    return reply.status(200).send(response)
+
+  })
+  done();
 }

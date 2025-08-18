@@ -108,24 +108,25 @@ enum Level {
 }
 
 model DriverCode {
-  id         Int      @id @unique @default(autoincrement())
-  language   Language @default(CPP)
-  beforeCode String
-  afterCode  String
-  problemId  Int
-  Problem    Problem  @relation(fields: [problemId], references: [id])
+  id              Int      @id @unique @default(autoincrement())
+  language        Language @default(CPP)
+  beforeCode      String
+  afterCode       String
+  placeHolderCode String   @default("")
+  problemId       Int
+  Problem         Problem  @relation(fields: [problemId], references: [id])
 }
 
 model Problem {
-  id          Int          @id @unique @default(autoincrement())
-  title       String       @unique
-  description String
-  slug        String       @unique
-  constraints String[]
-  topics      Topic[]
-  level       Level        @default(STARTER)
-  driverCodes DriverCode[]
-  acceptanceRate Float       @default(0)
+  id             Int          @id @unique @default(autoincrement())
+  title          String       @unique
+  description    String
+  slug           String       @unique
+  constraints    String[]
+  topics         Topic[]
+  level          Level        @default(STARTER)
+  driverCodes    DriverCode[]
+  acceptanceRate Float        @default(0)
 
   testCases        TestCase[]
   exampleTestCases ExampleTestCases[]

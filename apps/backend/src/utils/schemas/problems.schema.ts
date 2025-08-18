@@ -1,35 +1,41 @@
+import DriverCodeSchema from "./driverCode.schema.js";
 import SharedDefs from "./enums.js";
+import ExampleTestCasesSchema from "./example-test-case.schema.js";
 import SubmittedResultSchema from "./submitted-result.schema.js";
+import TestCaseSchema from "./test-case.schema.js";
 
 const ProblemSchema = {
-    type: "object",
-    properties: {
-        id: { type: "integer" },
-        title: { type: "string" },
-        description: { type: "string" },
-        slug: { type: "string" },
-        constraints: {
-            type: "array",
-            items: { type: "string" },
-        },
-        topics: {
-            type: "array",
-            items: { ...SharedDefs.Topic },
-        },
-        submittedResults: { type: 'array', items: { ...SubmittedResultSchema } },
-        userStatus: { type: 'string', enum: ["solved", "attempted", "not-attempted"] },
-        level: { ...SharedDefs.Level },
-        acceptanceRate: { type: "number" },
-        createdAt: { ...SharedDefs.DateTime },
+  type: "object",
+  properties: {
+    id: { type: "integer" },
+    title: { type: "string" },
+    description: { type: "string" },
+    slug: { type: "string" },
+    constraints: {
+      type: "array",
+      items: { type: "string" },
     },
-    required: [
-        "title",
-        "description",
-        "slug",
-        "constraints",
-        "topics",
-        "level",
-    ],
+    topics: {
+      type: "array",
+      items: { ...SharedDefs.Topic },
+    },
+    submittedResults: { type: 'array', items: { ...SubmittedResultSchema } },
+    driverCodes: { type: 'array', items: { ...DriverCodeSchema } },
+    testcases: { type: 'array', items: { ...TestCaseSchema } },
+    exampleTestCases: { type: 'array', items: { ...ExampleTestCasesSchema } },
+    userStatus: { type: 'string', enum: ["solved", "attempted", "not-attempted"] },
+    level: { ...SharedDefs.Level },
+    acceptanceRate: { type: "number" },
+    createdAt: { ...SharedDefs.DateTime },
+  },
+  required: [
+    "title",
+    "description",
+    "slug",
+    "constraints",
+    "topics",
+    "level",
+  ],
 } as const;
 
 export default ProblemSchema

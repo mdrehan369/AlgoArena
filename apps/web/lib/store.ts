@@ -1,10 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit'
 import problemsReducer from './features/problems/problems.slice'
+import problemPageReducer from './features/problemsPage/problemPage.slice.ts'
 
 export const makeStore = () => {
   return configureStore({
     reducer: {
-        problem: problemsReducer
+      problem: problemsReducer,
+      problemPage: problemPageReducer
     },
   })
 }

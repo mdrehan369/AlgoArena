@@ -1,4 +1,4 @@
-import { SharedDefs } from "./index.js";
+import SharedDefs from "./enums.js";
 
 const DriverCodeSchema = {
   type: "object",
@@ -6,6 +6,7 @@ const DriverCodeSchema = {
     id: { type: "integer" },
     language: { ...SharedDefs.Language },
     beforeCode: { type: "string" },
+    placeHolderCode: { type: "string" },
     afterCode: { type: "string" },
     problemId: { type: "integer" },
   },

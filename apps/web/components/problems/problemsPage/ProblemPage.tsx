@@ -27,7 +27,7 @@ export default function ProblemPage({ problem }: { problem: FullProblem }) {
   return (
     <Box style={{ backgroundColor: "#0f172a", minHeight: "100vh" }}>
       <ProblemHeader />
-      <Container size="xl" py="md">
+      <Container fluid py="md" px="xl">
         <Grid>
           <LeftPane />
           <RightPane />

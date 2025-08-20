@@ -1,4 +1,4 @@
-import { Level, Prisma, PrismaClient, Topic } from "@repo/db"
+import { Level, Prisma, PrismaClient, Problem, Topic } from "@repo/db"
 
 
 export class ProblemRepository {
@@ -76,4 +76,25 @@ export class ProblemRepository {
 
     return { success: true, data: problem }
   }
+
+  async getProblemById(id: Problem['id']) {
+
+    const problem = await this.prisma.problem.findFirst({
+      where: {
+        id
+      },
+      include: {
+        driverCodes: true,
+        exampleTestCases: true,
+        submittedResults: true,
+        testCases: true
+      }
+    })
+
+    if (!problem)
+      return { success: false, err: "No problem found!" }
+
+    return { success: true, data: problem }
+  }
+
 }

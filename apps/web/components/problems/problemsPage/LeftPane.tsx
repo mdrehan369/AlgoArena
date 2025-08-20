@@ -21,12 +21,12 @@ export default function DescriptionBox() {
   const problem = useAppSelector(state => state.problemPage.problem)
 
   return (
-    <Grid.Col span={{ base: 12, lg: 6 }}>
+    <Grid.Col span={{ base: 12, lg: 4 }}>
       <Card
         style={{
           backgroundColor: "rgba(30, 41, 59, 0.5)",
           border: "1px solid #475569",
-          height: "calc(100vh - 120px)",
+          height: "calc(100vh - 160px)",
         }}
       >
         <ScrollArea h="100%">

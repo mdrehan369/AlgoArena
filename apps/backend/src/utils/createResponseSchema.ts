@@ -6,7 +6,8 @@ export default function createResponseSchema(ResponseDataSchema: Record<string, 
     properties: {
       success: { type: 'boolean', default: true },
       message: { type: 'string', default: 'ok' },
-      data: { ...ResponseDataSchema }
+      data: { ...ResponseDataSchema },
+      error: { type: 'string' }
     }
   }
 }

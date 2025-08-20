@@ -14,5 +14,6 @@ export const getProblems = async (params: {
     return response.data.data
   } catch (error) {
     console.log("Error while fetching problems", error)
+    return null
   }
 }

@@ -19,9 +19,13 @@ import ace from "ace-builds/src-noconflict/ace"
 import { Select, Group, ActionIcon, Tooltip } from "@mantine/core"
 import { IconFile, IconRefresh, IconSettings } from "@tabler/icons-react"
 import { useEffect, useRef, useState } from "react"
-import { useAppSelector } from "@lib/hooks"
+import { useAppDispatch, useAppSelector } from "@lib/hooks"
 import { format } from "actions/format"
 import configureAce from "config/ace.config"
+import { setCode, setCompileError, setLanguage, setTestResults, stopRunTest } from "@lib/features/problemsPage/problemPage.slice"
+import { useMutation } from "@tanstack/react-query"
+import { runTest } from "queries/runners.queries"
+import { RunTestMutationKeys } from "@utils/constants"
 
 // Enhanced custom theme matching Algo Arena branding
 configureAce(ace)
@@ -67,15 +71,35 @@ const languageMap = [
 function ProblemEditor() {
 
   const [selectedTheme, setSelectedTheme] = useState("algo-arena")
-  const [language, setLanguage] = useState<Language>(Language.CPP)
+  const { code, isRunning, problem, language } = useAppSelector(state => state.problemPage)
   const placeHolder = useAppSelector(state => state.problemPage.problem?.driverCodes.find(val => val.language == language)?.placeHolderCode) || ""
-  const [code, setCode] = useState("")
+  const dispatch = useAppDispatch()
+
+  const runTestMutation = useMutation({
+    mutationFn: runTest,
+    mutationKey: RunTestMutationKeys,
+    onSuccess: (data) => {
+      console.log(data)
+      if (!data.error)
+        dispatch(setTestResults(data.data || []))
+      else
+        dispatch(setCompileError(data.error))
+    }
+  })
+
+  useEffect(() => {
+    if (isRunning) {
+      runTestMutation.mutate({ code, language, problemId: problem!.id })
+      dispatch(stopRunTest())
+    }
+  }, [isRunning])
+
 
   const currentLanguageConfig = languageMap.find((lang) => lang.language === language)
 
   const formatCode = async (code: string) => {
     const formatted = await format(code, language);
-    setCode(formatted);
+    dispatch(setCode(formatted))
   }
 
   const handleReset = async () => await formatCode(placeHolder)
@@ -104,7 +128,7 @@ function ProblemEditor() {
         <Group gap="md">
           <Select
             value={language}
-            onChange={(value) => setLanguage(value as Language)}
+            onChange={(value) => dispatch(setLanguage(value as Language))}
             data={languageMap.map((lang) => ({
               value: lang.language,
               label: lang.label,
@@ -201,7 +225,7 @@ function ProblemEditor() {
           showGutter={true}
           highlightActiveLine={true}
           value={code}
-          onChange={(val) => setCode(val)}
+          onChange={(val) => dispatch(setCode(val))}
           wrapEnabled={false}
           tabSize={4}
           setOptions={{

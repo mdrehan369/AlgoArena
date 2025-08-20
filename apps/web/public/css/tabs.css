@@ -1,0 +1,10 @@
+@import "./constants.css";
+
+.tabs {
+  color: var(--color-text-gray);
+}
+
+.tabs:hover {
+  background-color: var(--color-primary-background);
+  color: teal;
+}

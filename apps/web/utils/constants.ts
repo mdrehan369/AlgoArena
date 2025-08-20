@@ -18,6 +18,8 @@ export const ProblemsQueryKeys = ["problems"]
 
 export const StatsQueryKeys = ["keys"]
 
+export const RunTestMutationKeys = ["run"]
+
 export const topicOptions = [
   'ARRAY',
   'STRING',

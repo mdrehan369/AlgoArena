@@ -127,6 +127,8 @@ model Problem {
   level          Level        @default(STARTER)
   driverCodes    DriverCode[]
   acceptanceRate Float        @default(0)
+  timeLimit      Float        @default(5.0)
+  memoryLimit    Float        @default(10.0)
 
   testCases        TestCase[]
   exampleTestCases ExampleTestCases[]

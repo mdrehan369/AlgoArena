@@ -21,7 +21,7 @@ const ProblemSchema = {
     },
     submittedResults: { type: 'array', items: { ...SubmittedResultSchema } },
     driverCodes: { type: 'array', items: { ...DriverCodeSchema } },
-    testcases: { type: 'array', items: { ...TestCaseSchema } },
+    testCases: { type: 'array', items: { ...TestCaseSchema } },
     exampleTestCases: { type: 'array', items: { ...ExampleTestCasesSchema } },
     userStatus: { type: 'string', enum: ["solved", "attempted", "not-attempted"] },
     level: { ...SharedDefs.Level },

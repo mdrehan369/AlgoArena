@@ -1,13 +1,12 @@
 import { randomUUID } from "node:crypto";
 import fs from 'fs'
-import { spawnSync } from "node:child_process";
 import { TestCase } from "@repo/db";
-import { Outputs } from "src/types/runner.types";
 import os from 'os'
+import spawner from "../spawner.js";
 
 const platform = os.platform()
 
-export default function pythonExecutor(code: string, testCases: TestCase[]) {
+export default async function pythonExecutor(code: string, testCases: TestCase[], timeLimit: number, memoryLimit: number) {
   const uuid = randomUUID()
   const filename = `${uuid}.py`
   fs.writeFileSync(filename, code, 'utf-8')
@@ -15,20 +14,12 @@ export default function pythonExecutor(code: string, testCases: TestCase[]) {
   let interpretor = 'python3'
   if (platform != 'linux') interpretor = 'python'
 
-  const outputs: Outputs[] = []
-
-  for (const testCase of testCases) {
-    const result = spawnSync(`${interpretor} ${filename}`, {
-      input: testCase.input,
-      encoding: "utf-8"
-    })
-
-    if (result.error) outputs.push({ testCaseId: testCase.id, output: result.stderr, status: "FAIL" })
-    if (result.stdout != testCase.output) outputs.push({ testCaseId: testCase.id, output: result.stdout, status: "FAIL" })
-    else outputs.push({ testCaseId: testCase.id, output: result.stdout, status: "PASS" })
+  try {
+    return await spawner(`${interpretor}`, [filename], testCases, timeLimit, memoryLimit)
+  } catch (error: any) {
+    console.log(error)
+    return { success: false, message: "Some error occured inside server", error: error.message, errorCode: 500 }
+  } finally {
+    if (fs.existsSync(filename)) fs.unlinkSync(filename)
   }
-
-  fs.unlinkSync(filename)
-
-  return { success: true, data: outputs }
 }

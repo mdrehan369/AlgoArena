@@ -1,6 +1,5 @@
 
 import { createSlice } from "@reduxjs/toolkit";
-import { string } from "better-auth";
 import { FullProblem } from "types/problems.types";
 import { Outputs } from "types/TestCase.types";
 

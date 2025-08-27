@@ -29,7 +29,7 @@ export default function DescriptionBox() {
           height: "calc(100vh - 160px)",
         }}
       >
-        <ScrollArea h="100%">
+        <ScrollArea h="100%" type="scroll">
           <Stack gap="lg">
             {/* Problem Description */}
             <Box>

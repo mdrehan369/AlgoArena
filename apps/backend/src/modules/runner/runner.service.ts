@@ -1,11 +1,11 @@
 import { Language, PrismaClient, Problem } from "@repo/db";
-import { RunnerRepository } from "./runner.repository";
-import { ProblemRepository } from "../problems/problem.repository";
-import cExecutor from "src/utils/executors/cExecutor";
-import cppExecutor from "src/utils/executors/cppExecutor";
-import pythonExecutor from "src/utils/executors/pythonExecutor";
-import jsExecutor from "src/utils/executors/jsExecutor";
-import { Outputs } from "src/types/runner.types";
+import { RunnerRepository } from "./runner.repository.js";
+import { ProblemRepository } from "../problems/problem.repository.js";
+import cExecutor from "src/utils/executors/cExecutor.js";
+import cppExecutor from "src/utils/executors/cppExecutor.js";
+import pythonExecutor from "src/utils/executors/pythonExecutor.js";
+import jsExecutor from "src/utils/executors/jsExecutor.js";
+import { Outputs } from "src/types/runner.types.js";
 
 export class RunnerService {
   private runnerRepository: RunnerRepository
@@ -45,7 +45,7 @@ export class RunnerService {
         executor = cppExecutor
     }
 
-    const results = await executor(fullCode, problem.testCases)
+    const results = await executor(fullCode, problem.testCases, problem.timeLimit, problem.memoryLimit)
     return results
   }
 

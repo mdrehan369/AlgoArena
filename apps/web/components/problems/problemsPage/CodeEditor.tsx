@@ -22,7 +22,7 @@ import { useEffect, useRef, useState } from "react"
 import { useAppDispatch, useAppSelector } from "@lib/hooks"
 import { format } from "actions/format"
 import configureAce from "config/ace.config"
-import { setCode, setCompileError, setLanguage, setTestResults, stopRunTest } from "@lib/features/problemsPage/problemPage.slice"
+import { setCode, setCompileError, setLanguage, setTestResults, startRunTest, stopRunTest } from "@lib/features/problemsPage/problemPage.slice"
 import { useMutation } from "@tanstack/react-query"
 import { runTest } from "queries/runners.queries"
 import { RunTestMutationKeys } from "@utils/constants"
@@ -84,13 +84,15 @@ function ProblemEditor() {
         dispatch(setTestResults(data.data || []))
       else
         dispatch(setCompileError(data.error))
+    },
+    onSettled: () => {
+      dispatch(stopRunTest())
     }
   })
 
   useEffect(() => {
     if (isRunning) {
       runTestMutation.mutate({ code, language, problemId: problem!.id })
-      dispatch(stopRunTest())
     }
   }, [isRunning])
 
@@ -98,7 +100,7 @@ function ProblemEditor() {
   const currentLanguageConfig = languageMap.find((lang) => lang.language === language)
 
   const formatCode = async (code: string) => {
-    const formatted = await format(code, language);
+    const formatted = await format(code.replaceAll("\\n", "\n"), language);
     dispatch(setCode(formatted))
   }
 
@@ -246,6 +248,15 @@ function ProblemEditor() {
           editorProps={{
             $blockScrolling: Number.POSITIVE_INFINITY,
           }}
+          commands={[
+            {
+              name: "runCode",
+              bindKey: { win: "Ctrl-'", mac: "Command-'" },
+              exec: () => {
+                dispatch(startRunTest())
+              },
+            },
+          ]}
         />
       </div>
     </div>

@@ -57,10 +57,5 @@ export const problemController: FastifyPluginCallback = (instance, opts, done) =
 
   })
 
-  fastify.post("/problem", {}, async (request: FastifyRequest<{ Body: { code: string } }>, reply) => {
-    const code = await request.body.code
-    return reply.status(200).send(fastify.problemService.runCppCode(code))
-  })
-
   done();
 }

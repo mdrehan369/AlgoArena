@@ -1,6 +1,6 @@
 import { FastifySchema } from "fastify";
-import createResponseSchema from "src/utils/createResponseSchema";
-import { TestCaseSchema } from "src/utils/schemas";
+import createResponseSchema from "@/utils/createResponseSchema.js";
+import { TestCaseSchema } from "@/utils/schemas/index.js";
 
 export const RunTestSchema: FastifySchema = {
   description: "Run code test schema",

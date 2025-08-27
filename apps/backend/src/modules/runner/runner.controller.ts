@@ -1,6 +1,6 @@
 import { FastifyInstance, FastifyPluginCallback, FastifyReply, FastifyRequest } from "fastify";
-import { RunnerService } from "./runner.service";
-import { RunTestSchema } from "src/schemas/runner/runner.post";
+import { RunnerService } from "./runner.service.js";
+import { RunTestSchema } from "@/schemas/runner/runner.post.js";
 import { Language, Problem } from "@repo/db";
 
 export const runnerController: FastifyPluginCallback = (instance, opts, done) => {

@@ -1,5 +1,5 @@
 "use server"
-import { execSync } from "child_process";
+import { execSync, spawn } from "child_process";
 import prettier from "prettier";
 
 enum Language {
@@ -29,63 +29,29 @@ const formatJs = (code: string) => {
 
 
 
-async function formatPython(code: string) {
-  const lines = code.split("\n");
+async function formatPython(code: string): Promise<string> {
+  return new Promise((res, rej) => {
+    const blackProcess = spawn('black', ['--code', code, '--quiet']);
+    let formattedCode = '';
+    let errorOutput = '';
 
-  let formatted: string[] = [];
-  let indentLevel = 0;
-  const indent = "    "; // 4 spaces per indent
+    blackProcess.stdout.on('data', (data) => {
+      formattedCode += data.toString();
+    });
 
-  for (let rawLine of lines) {
-    let line = rawLine.trim();
+    blackProcess.stderr.on('data', (data) => {
+      errorOutput += data.toString();
+    });
 
-    // Skip empty lines, but keep one blank line max
-    if (line === "") {
-      if (formatted.length > 0 && formatted[formatted.length - 1] !== "") {
-        formatted.push("");
+    blackProcess.on('close', (exitCode) => {
+      if (exitCode === 0) {
+        res(formattedCode.trim())
+      } else {
+        console.log(`Black formatting failed: ${errorOutput}`);
+        res(code)
       }
-      continue;
-    }
-
-    // Dedent when line starts with 'return', 'pass', 'break', etc.
-    if (/^(return|pass|break|continue)/.test(line)) {
-      indentLevel = Math.max(indentLevel, 0);
-    }
-
-    // Add spacing around operators (=, +, -, :)
-    line = line.replace(/\s*=\s*/g, " = ");
-    line = line.replace(/\s*:\s*/g, ": ");
-    line = line.replace(/\s*\+\s*/g, " + ");
-    line = line.replace(/\s*-\s*/g, " - ");
-    line = line.replace(/\s*\/\s*/g, " / ");
-    line = line.replace(/\s*\*\s*/g, " * ");
-
-    // Format function definitions
-    if (line.startsWith("def ")) {
-      line = line.replace(/\)\s*:/, "):");
-    }
-
-    // Apply indentation
-    formatted.push(indent.repeat(indentLevel) + line);
-
-    // Increase indent after block openers (if, for, while, def, class, try, except)
-    if (/(def |class |if |for |while |try:|except |else:|elif )/.test(line) && line.endsWith(":")) {
-      indentLevel++;
-    }
-
-    // Dedent on 'return', 'pass', etc. next line automatically handled
-    if (/^(return|pass|break|continue)/.test(line)) {
-      // no auto-dedent, Python syntax handles it — but you could add custom rules
-    }
-  }
-
-  return formatted
-    .map((line) => {
-      if (line.startsWith("def") || line.startsWith("class")) return line;
-      if (line === "") return "";
-      return "    " + line;
-    })
-    .join("\n");
+    });
+  })
 }
 
 export const format = async (code: string, language: Language) => {

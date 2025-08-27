@@ -2,43 +2,23 @@ import { randomUUID } from "node:crypto";
 import fs from 'fs'
 import { spawnSync } from "node:child_process";
 import { TestCase } from "@repo/db";
-import { Outputs } from "src/types/runner.types";
+import spawner from "../spawner.js";
 
-
-export default function cExecutor(code: string, testCases: TestCase[]) {
+export default async function cExecutor(code: string, testCases: TestCase[], timeLimit: number, memoryLimit: number) {
   const uuid = randomUUID()
   const filename = `${uuid}.c`
   fs.writeFileSync(filename, code, 'utf-8')
 
-  const compile = spawnSync('gcc', [`${filename}`, '-o', `${uuid}`])
-  if (compile.stderr && compile.stderr.toString() != "") return { success: false, message: "some error occured while compiling", error: compile.stderr.toString() }
+  try {
+    const compile = spawnSync('gcc', [`${filename}`, '-o', `${uuid}`])
+    if (compile.stderr && compile.stderr.toString() != "") return { success: true, message: "some error occured while compiling", error: compile.stderr.toString(), errorCode: 400 }
 
-  const outputs: Outputs[] = []
-
-  for (const testCase of testCases) {
-    const result = spawnSync(`./${uuid}`, {
-      input: testCase.input,
-      encoding: "utf-8"
-    })
-
-    if (result.stderr && result.stderr.toString() != "") {
-      outputs.push({ testCaseId: testCase.id, output: result.stderr, status: "FAIL" })
-      continue
-    }
-    const stdOut = result.stdout.toString()
-    const formattedStdOut = stdOut.trim().replaceAll("\n", "")
-
-    let isPass: Outputs['status'] = "FAIL"
-    if (formattedStdOut == testCase.output) isPass = "PASS"
-
-    outputs.push({ testCaseId: testCase.id, output: formattedStdOut, status: isPass })
-
+    return await spawner(`./${uuid}`, [], testCases, timeLimit, memoryLimit)
+  } catch (error: any) {
+    console.log(error)
+    return { success: false, message: "Some error occured inside server", error: error.message, errorCode: 500 }
+  } finally {
+    if (fs.existsSync(filename)) fs.unlinkSync(filename)
+    if (fs.existsSync(`./${uuid}`)) fs.unlinkSync(`./${uuid}`)
   }
-
-
-  fs.unlinkSync(filename)
-  fs.unlinkSync(`./${uuid}`)
-
-
-  return { success: true, data: outputs }
 }

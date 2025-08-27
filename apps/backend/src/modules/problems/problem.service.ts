@@ -1,7 +1,5 @@
 import { Level, PrismaClient, Topic, Prisma, SubmittedResult } from "@repo/db";
 import { ProblemRepository } from "./problem.repository.js";
-import { spawnSync } from "child_process";
-import fs from 'fs'
 
 export class ProblemService {
   private prisma: PrismaClient
@@ -42,17 +40,5 @@ export class ProblemService {
 
   async getProblemBySlug(slug: string) {
     return this.problemRepository.getProblemBySlug(slug)
-  }
-
-  async runCppCode(code: string) {
-    fs.writeFileSync('code.cpp', code, "utf-8")
-    const compiled = spawnSync('g++', ['code.cpp'])
-    console.log(compiled.stderr.toString())
-    const result = spawnSync('./a.out')
-
-    console.log(result.stderr.toString())
-    const output = result.stdout.toString()
-    console.log(output)
-    return output
   }
 }

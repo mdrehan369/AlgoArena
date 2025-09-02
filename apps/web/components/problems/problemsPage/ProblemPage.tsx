@@ -1,42 +1,32 @@
-"use client"
+'use client';
 
-import {
-  Container,
-  Grid,
-  Box,
-} from "@mantine/core"
-import { useEffect } from "react"
-import { FullProblem } from "types/problems.types"
-import ProblemHeader from "./Header"
-import { useAppDispatch, useAppSelector } from "@lib/hooks"
-import { setIsSubmiting, setProblemStatement } from "@lib/features/problemsPage/problemPage.slice"
-import LeftPane from "./LeftPane.tsx"
-import RightPane from "./RightPane.tsx"
-import SubmitModal from "./SubmitModal.tsx"
-
-
+import { Container, Grid, Box } from '@mantine/core';
+import { useEffect } from 'react';
+import { FullProblem } from 'types/problems.types';
+import ProblemHeader from './Header';
+import { useAppDispatch } from '@lib/hooks';
+import { setProblemStatement } from '@lib/features/problemsPage/problemPage.slice';
+import LeftPane from './LeftPane.tsx';
+import RightPane from './RightPane.tsx';
+import SubmitModal from './SubmitModal.tsx';
 
 export default function ProblemPage({ problem }: { problem: FullProblem }) {
+    const dispatch = useAppDispatch();
 
-  const dispatch = useAppDispatch()
-  const { isSubmiting, language } = useAppSelector(state => state.problemPage)
+    useEffect(() => {
+        dispatch(setProblemStatement(problem));
+    }, []);
 
-  useEffect(() => {
-    dispatch(setProblemStatement(problem))
-  }, [])
-
-
-  return (
-    <Box style={{ backgroundColor: "#0f172a", minHeight: "100vh" }}>
-      <ProblemHeader />
-      <Container fluid py="md" px="xl">
-        <Grid>
-          <LeftPane />
-          <RightPane />
-        </Grid>
-      </Container>
-      <SubmitModal opened={isSubmiting} language={language} onClose={() => { console.log("closed"); dispatch(setIsSubmiting(false)) }} problemTitle={problem.title} />
-    </Box>
-  )
+    return (
+        <Box style={{ backgroundColor: '#0f172a', minHeight: '100vh' }}>
+            <ProblemHeader />
+            <Container fluid py="md" px="xl">
+                <Grid>
+                    <LeftPane />
+                    <RightPane />
+                </Grid>
+            </Container>
+            <SubmitModal />
+        </Box>
+    );
 }
-

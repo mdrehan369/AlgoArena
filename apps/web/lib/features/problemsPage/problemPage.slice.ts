@@ -16,7 +16,8 @@ export interface ProblemState {
   language: Language,
   isRunning: boolean,
   testResults: Outputs[],
-  compileError: string | null
+  compileError: string | null,
+  isSubmiting: boolean
 }
 
 const initialState: ProblemState = {
@@ -25,7 +26,8 @@ const initialState: ProblemState = {
   language: Language.CPP,
   isRunning: false,
   testResults: [],
-  compileError: null
+  compileError: null,
+  isSubmiting: false
 };
 
 const problemsSlice = createSlice({
@@ -54,9 +56,12 @@ const problemsSlice = createSlice({
     setCompileError: (state, action: { payload: string }) => {
       state.testResults = []
       state.compileError = action.payload
+    },
+    setIsSubmiting: (state, action: { payload: boolean }) => {
+      state.isSubmiting = action.payload
     }
   },
 });
 
-export const { setProblemStatement, setCode, setLanguage, startRunTest, stopRunTest, setTestResults, setCompileError } = problemsSlice.actions;
+export const { setProblemStatement, setCode, setLanguage, startRunTest, stopRunTest, setTestResults, setCompileError, setIsSubmiting } = problemsSlice.actions;
 export default problemsSlice.reducer

@@ -20,6 +20,8 @@ export const StatsQueryKeys = ["keys"]
 
 export const RunTestMutationKeys = ["run"]
 
+export const SubmitProblemKeys = ["submit"]
+
 export const topicOptions = [
   'ARRAY',
   'STRING',

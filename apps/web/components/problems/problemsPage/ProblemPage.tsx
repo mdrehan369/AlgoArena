@@ -8,16 +8,18 @@ import {
 import { useEffect } from "react"
 import { FullProblem } from "types/problems.types"
 import ProblemHeader from "./Header"
-import { useAppDispatch } from "@lib/hooks"
-import { setProblemStatement } from "@lib/features/problemsPage/problemPage.slice"
+import { useAppDispatch, useAppSelector } from "@lib/hooks"
+import { setIsSubmiting, setProblemStatement } from "@lib/features/problemsPage/problemPage.slice"
 import LeftPane from "./LeftPane.tsx"
 import RightPane from "./RightPane.tsx"
+import SubmitModal from "./SubmitModal.tsx"
 
 
 
 export default function ProblemPage({ problem }: { problem: FullProblem }) {
 
   const dispatch = useAppDispatch()
+  const { isSubmiting, language } = useAppSelector(state => state.problemPage)
 
   useEffect(() => {
     dispatch(setProblemStatement(problem))
@@ -33,6 +35,7 @@ export default function ProblemPage({ problem }: { problem: FullProblem }) {
           <RightPane />
         </Grid>
       </Container>
+      <SubmitModal opened={isSubmiting} language={language} onClose={() => { console.log("closed"); dispatch(setIsSubmiting(false)) }} problemTitle={problem.title} />
     </Box>
   )
 }

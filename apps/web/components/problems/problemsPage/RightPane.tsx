@@ -26,9 +26,9 @@ import {
   IconMinus,
   IconChevronDown,
 } from "@tabler/icons-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import CodeEditor from "./CodeEditor"
-import { startRunTest } from "@lib/features/problemsPage/problemPage.slice"
+import { setIsSubmiting, startRunTest } from "@lib/features/problemsPage/problemPage.slice"
 
 import "public/css/tabs.css"
 import CustomLoader from "@components/Loader"
@@ -36,7 +36,6 @@ import { primaryColors, secondaryColors, textColors } from "@utils/colors"
 
 export default function RightPane() {
 
-  const [isSubmitting, setIsSubmitting] = useState(false)
   const [tab, setTab] = useState<"results" | "testcases">("results")
   const { isRunning, testResults, compileError, problem } = useAppSelector(state => state.problemPage)
 
@@ -48,12 +47,7 @@ export default function RightPane() {
   }
 
   const handleSubmit = async () => {
-    setIsSubmitting(true)
-
-    // Simulate submission
-    setTimeout(() => {
-      setIsSubmitting(false)
-    }, 3000)
+    dispatch(setIsSubmiting(true))
   }
 
   return (
@@ -85,7 +79,6 @@ export default function RightPane() {
                   leftSection={<IconSend size={16} />}
                   color="teal"
                   onClick={handleSubmit}
-                  loading={isSubmitting}
                 >
                   Submit
                 </Button>

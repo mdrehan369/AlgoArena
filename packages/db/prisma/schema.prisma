@@ -153,6 +153,7 @@ model SubmittedResult {
   isAccepted      Boolean  @default(false)
   language        Language
   runtime         Float
+  memory          Float
   testCasesPassed Int      @default(0)
 
   problem   Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)

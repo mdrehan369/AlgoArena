@@ -1,47 +1,46 @@
 import { PrismaClient } from "@repo/db";
 
 export class StatRepository {
-    private prisma: PrismaClient
+  private prisma: PrismaClient
 
-    constructor(prisma: PrismaClient) {
-        this.prisma = prisma
-    }
+  constructor(prisma: PrismaClient) {
+    this.prisma = prisma
+  }
 
-    async getProblemsSolved(userId: string) {
-        const problemsSolved = await this.prisma.submittedResult.groupBy({
-            by: ["problemId"],
-            where: {
-                userId
-            },
-            having: {
-                isAccepted: {
-                    _count: {
-                        gt: 0
-                    }
-                }
-            }
-        })
+  async getProblemsSolved(userId: string) {
+    const problemsSolved = await this.prisma.submittedResult.groupBy({
+      by: ["problemId"],
+      where: {
+        userId
+      },
+      having: {
+        isAccepted: {
+          _count: {
+            gt: 0
+          }
+        }
+      }
+    })
 
-        return problemsSolved.length
-    }
+    return problemsSolved.length
+  }
 
-    async getTotalAttempts(userId: string) {
-        const totalAttempts = await this.prisma.submittedResult.groupBy({
-            by: ["problemId"],
-            where: {
-                userId
-            }
-        })
+  async getTotalAttempts(userId: string) {
+    const totalAttempts = await this.prisma.submittedResult.count({
+      where: {
+        userId
+      }
+    })
 
-        return totalAttempts.length
-    }
+    return totalAttempts
+  }
 
 
-    // For now rank is based on number of problems solved but later on i will update to points system
-    async getGlobalRank(userId: string) {
-        const result = await this.prisma.$queryRawUnsafe<
-            { user_id: string; rank: number }[]
-        >(`
+  // For now rank is based on number of problems solved but later on i will update to points system
+  async getGlobalRank(userId: string) {
+    const result = await this.prisma.$queryRawUnsafe<
+      { user_id: string; rank: number }[]
+    >(`
             WITH accepted_counts AS (
             SELECT
                 "userId" AS user_id,
@@ -61,13 +60,13 @@ export class StatRepository {
             WHERE user_id = $1;
         `, userId)
 
-        return result[0] ?? { rank: 1, user_id: userId }
-    }
+    return result[0] ?? { rank: 1, user_id: userId }
+  }
 
-    async getLeaderboard(limit: number = 10) {
-        return await this.prisma.$queryRawUnsafe<
-            { user_id: string; accepted_count: number; rank: number }[]
-        >(`
+  async getLeaderboard(limit: number = 10) {
+    return await this.prisma.$queryRawUnsafe<
+      { user_id: string; accepted_count: number; rank: number }[]
+    >(`
             WITH accepted_counts AS (
             SELECT
                 "userId" AS user_id,
@@ -87,5 +86,5 @@ export class StatRepository {
             ORDER BY rank
             LIMIT $1;
         `, limit)
-    }
+  }
 }

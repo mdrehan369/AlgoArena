@@ -1,7 +1,8 @@
 import { FastifyInstance, FastifyPluginCallback, FastifyReply, FastifyRequest } from "fastify";
 import { GetAllProblemsSchema, GetProblemBySlug } from "../../schemas/problems/problem.get.js";
 import { ProblemService } from "./problem.service.js";
-import { Level, Topic } from "@repo/db";
+import { Language, Level, Topic } from "@repo/db";
+import { SubmitProblemSchema } from "@/schemas/problems/problem.post.js";
 
 export const problemController: FastifyPluginCallback = (instance, opts, done) => {
 
@@ -56,6 +57,23 @@ export const problemController: FastifyPluginCallback = (instance, opts, done) =
     return reply.status(200).send(response)
 
   })
+
+  fastify.post("/problem/submit", { schema: SubmitProblemSchema },
+    async (request: FastifyRequest<{
+      Body: {
+        language: Language,
+        problemId: number,
+        code: string
+      }
+    }>, reply) => {
+      const { code, problemId, language } = request.body
+      if (!fastify.user) {
+        return reply.status(400).send({ success: false, message: "Authenticate first!" })
+      }
+
+      return await fastify.problemService.runSubmitProblem(fastify.user.id, code, problemId, language)
+    }
+  )
 
   done();
 }

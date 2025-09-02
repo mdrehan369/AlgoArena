@@ -1,4 +1,4 @@
-import { Level, Prisma, PrismaClient, Problem, Topic } from "@repo/db"
+import { Language, Level, Prisma, PrismaClient, Problem, Topic, User } from "@repo/db"
 
 
 export class ProblemRepository {
@@ -67,7 +67,11 @@ export class ProblemRepository {
         driverCodes: true,
         exampleTestCases: true,
         submittedResults: true,
-        testCases: true
+        testCases: {
+          where: {
+            hidden: false
+          }
+        }
       }
     })
 
@@ -77,17 +81,24 @@ export class ProblemRepository {
     return { success: true, data: problem }
   }
 
-  async getProblemById(id: Problem['id']) {
+  async getProblemById(id: Problem['id'], withHiddenTestcases: boolean = false) {
+
+    let testCases: Record<string, any> | boolean = {
+      where: {
+        hidden: false
+      }
+    }
+    if (withHiddenTestcases) testCases = true
 
     const problem = await this.prisma.problem.findFirst({
       where: {
-        id
+        id: Number(id)
       },
       include: {
         driverCodes: true,
         exampleTestCases: true,
         submittedResults: true,
-        testCases: true
+        testCases
       }
     })
 
@@ -95,6 +106,23 @@ export class ProblemRepository {
       return { success: false, err: "No problem found!" }
 
     return { success: true, data: problem }
+  }
+
+  async createProblemSubmission(
+    { code, isAccepted, language, problemId, testCasesPassed, userId, runtime, memory }:
+      { code: string, language: Language, problemId: Problem['id'], userId: User['id'], testCasesPassed: number, isAccepted: boolean, runtime: number, memory: number }) {
+    return await this.prisma.submittedResult.create({
+      data: {
+        code,
+        language,
+        runtime,
+        isAccepted,
+        problemId: Number(problemId),
+        userId,
+        testCasesPassed,
+        memory
+      }
+    })
   }
 
 }

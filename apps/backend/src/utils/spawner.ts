@@ -49,24 +49,21 @@ export default async function spawner(spawningCmd: string, params: string[], tes
         stderrData += data.toString();
       });
 
-      result.on("error", (error) => {
-        console.log("Spawn error:", error);
-      });
-
-      result.on("close", (code) => {
+      result.on("close", (code, signal) => {
         if (interval) clearInterval(interval)
-        console.log(stderrData)
         const consoleOutput = stdoutData.split("~")
         const formattedStdOut = consoleOutput[1]?.trim().replaceAll("\n", "")
 
-        if (code == 3) {
+        if (signal == "SIGQUIT") {
           outputs.push({ testCase, output: "", status: "TIME_LIMIT_EXCEEDED", runtime, memory: memoryPeak, console: stdoutData.replace("~", "\n") })
           res(true)
+          return
         }
 
-        if (code == 4) {
+        if (signal == "SIGILL") {
           outputs.push({ testCase, output: "", status: "MEMORY_LIMIT_EXCEEDED", runtime, memory: memoryPeak, console: stdoutData.replace("~", "\n") })
           res(true)
+          return
         }
         if (stderrData && stderrData != "") {
           outputs.push({ testCase: testCase, output: stderrData, status: "FAIL", runtime, memory: Number(memoryPeak.toFixed(3)), console: stdoutData.replace("~", "\n") })

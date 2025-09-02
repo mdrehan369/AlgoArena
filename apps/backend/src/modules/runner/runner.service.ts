@@ -16,10 +16,10 @@ export class RunnerService {
     this.problemRepository = new ProblemRepository(prisma)
   }
 
-  async testCode(code: string, problemId: Problem['id'], language: Language): Promise<{ success: boolean, message?: string, data?: Outputs[], error?: string, errorCode?: number }> {
+  async testCode(code: string, problemId: Problem['id'], language: Language, withHiddenTestcases?: boolean): Promise<{ success: boolean, message?: string, data?: Outputs[], error?: string, errorCode?: number }> {
     if (code == "") return { success: false, message: "No code given", errorCode: 400 }
 
-    const result = await this.problemRepository.getProblemById(problemId)
+    const result = await this.problemRepository.getProblemById(problemId, withHiddenTestcases)
     if (!result.success) return { success: false, message: "No problem found", errorCode: 404 }
 
     const problem = result.data!

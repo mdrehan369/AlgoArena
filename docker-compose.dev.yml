@@ -1,0 +1,118 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: pass1234
+      POSTGRES_DB: algoarena
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d algoarena"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - postgres_data-dev:/var/lib/postgresql/data
+      - ./packages/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network-dev
+
+  backend-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: backend-dev
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://admin:pass1234@db:5432/algoarena
+      PORT: 5000
+      FRONTEND_URL: http://localhost:3000
+    ports:
+      - "5000:5000"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - app-network-dev
+    volumes:
+      - ./packages/db/prisma:/app/packages/db/prisma
+      - ./apps/backend:/app/apps/backend
+    command: >
+      sh -c "npx prisma generate --schema=./packages/db/prisma/schema.prisma &&
+             npx turbo run dev --filter=backend"
+
+  web-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: web-dev
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://admin:pass1234@db:5432/algoarena
+      NEXT_PUBLIC_BACKEND_URL: http://localhost:5000/api/v1
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend-dev
+      - db
+    networks:
+      - app-network-dev
+    volumes:
+      - ./apps/web:/app/apps/web
+
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
+    environment:
+      DATABASE_URL: postgresql://admin:pass1234@db:5432/algoarena
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - app-network-dev
+    volumes:
+      - ./packages/db/prisma:/app/packages/db/prisma
+    command:
+      [
+        "npx",
+        "prisma",
+        "migrate",
+        "deploy",
+        "--schema=./packages/db/prisma/schema.prisma",
+      ]
+    restart: "no"
+
+  studio:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
+    environment:
+      DATABASE_URL: postgresql://admin:pass1234@db:5432/algoarena
+    depends_on:
+      - db
+      - migrate
+    networks:
+      - app-network-dev
+    ports:
+      - "5555:5555"
+    volumes:
+      - ./packages/db/prisma:/app/packages/db/prisma
+    command:
+      ["npx", "prisma", "studio", "--schema=./packages/db/prisma/schema.prisma"]
+    restart: "no"
+
+networks:
+  app-network-dev:
+    driver: bridge
+
+volumes:
+  postgres_data-dev:

@@ -14,6 +14,8 @@ import {
     Box,
     Badge,
     Textarea,
+    Input,
+    TextInput,
 } from '@mantine/core';
 import {
     IconPray,
@@ -29,29 +31,61 @@ import {
 import { useState } from 'react';
 import CodeEditor from './CodeEditor';
 import {
+    addCustomTestCase,
+    removeCustomeTestCase,
     setIsSubmiting,
+    startCustomTest,
     startRunTest,
 } from '@lib/features/problemsPage/problemPage.slice';
 
 import 'public/css/tabs.css';
 import CustomLoader from '@components/Loader';
 import { primaryColors, secondaryColors, textColors } from '@utils/colors';
+import { CustomTestCase } from 'types/TestCase.types';
+import { getRandomInt } from '@utils/generateRandomInt';
 
 export default function RightPane() {
-    const [tab, setTab] = useState<'results' | 'testcases'>('results');
-    const { isRunning, testResults, compileError, problem } = useAppSelector(
-        (state) => state.problemPage,
+    const [tab, setTab] = useState<'results' | 'testcases' | 'customs'>(
+        'results',
     );
+    const {
+        isRunning,
+        testResults,
+        compileError,
+        problem,
+        customTestCases,
+        isCustomTestCasesRunning,
+    } = useAppSelector((state) => state.problemPage);
+    const [customTestCaseInput, setCustomTestCaseInput] = useState('');
 
     const dispatch = useAppDispatch();
 
     const handleRun = async () => {
-        setTab('results');
-        dispatch(startRunTest());
+        if (tab == 'customs') {
+            dispatch(startCustomTest());
+        } else {
+            setTab('results');
+            dispatch(startRunTest());
+        }
     };
 
     const handleSubmit = async () => {
         dispatch(setIsSubmiting(true));
+    };
+
+    const handleAddCustomTestCase = () => {
+        if (customTestCaseInput == '') return;
+        const newCustomTestCase: CustomTestCase = {
+            id: getRandomInt(0, 1000),
+            input: customTestCaseInput,
+        };
+
+        dispatch(addCustomTestCase(newCustomTestCase));
+        setCustomTestCaseInput('');
+    };
+
+    const handleRemoveCustomTestCase = (id: CustomTestCase['id']) => {
+        dispatch(removeCustomeTestCase(id));
     };
 
     return (
@@ -75,7 +109,9 @@ export default function RightPane() {
                                     variant="outline"
                                     color="teal"
                                     onClick={handleRun}
-                                    loading={isRunning}
+                                    loading={
+                                        isRunning || isCustomTestCasesRunning
+                                    }
                                 >
                                     Run
                                 </Button>
@@ -105,7 +141,7 @@ export default function RightPane() {
                         defaultValue="testcases"
                         value={tab}
                         onChange={(val) =>
-                            setTab(val as 'results' | 'testcases')
+                            setTab(val as 'results' | 'testcases' | 'customs')
                         }
                         color="teal"
                         h="100%"
@@ -116,6 +152,9 @@ export default function RightPane() {
                             </Tabs.Tab>
                             <Tabs.Tab className="tabs" value="results">
                                 Results
+                            </Tabs.Tab>
+                            <Tabs.Tab className="tabs" value="customs">
+                                Custom
                             </Tabs.Tab>
                         </Tabs.List>
 
@@ -714,6 +753,312 @@ export default function RightPane() {
                                         results...
                                     </Text>
                                 )}
+                            </ScrollArea>
+                        </Tabs.Panel>
+
+                        <Tabs.Panel value="customs" pt="md">
+                            <ScrollArea h={'82vh'} type="scroll">
+                                {isCustomTestCasesRunning ? (
+                                    <CustomLoader />
+                                ) : compileError ? (
+                                    <Card
+                                        style={{
+                                            backgroundColor:
+                                                'rgba(252, 116, 125, 0.2)',
+                                            padding: '6px',
+                                            border: '2px solid #ff545f',
+                                            color: '#ff545f',
+                                        }}
+                                    >
+                                        {compileError}
+                                    </Card>
+                                ) : (
+                                    customTestCases.length > 0 && (
+                                        <>
+                                            <Stack gap="xs">
+                                                <Accordion
+                                                    chevron={null}
+                                                    variant="separated"
+                                                    multiple
+                                                    style={{ border: '0px' }}
+                                                >
+                                                    {customTestCases.map(
+                                                        (result, index) => {
+                                                            return (
+                                                                <Accordion.Item
+                                                                    style={{
+                                                                        backgroundColor:
+                                                                            'transparent',
+                                                                        border: '0px',
+                                                                    }}
+                                                                    key={
+                                                                        result.id
+                                                                    }
+                                                                    value={`case-${index}`}
+                                                                >
+                                                                    <Accordion.Control
+                                                                        style={{
+                                                                            backgroundColor:
+                                                                                secondaryColors.DEFAULT,
+                                                                            borderRadius:
+                                                                                '8px',
+                                                                            border: `1px solid ${secondaryColors.DEFAULT}`,
+                                                                            padding:
+                                                                                '2px 8px',
+                                                                        }}
+                                                                    >
+                                                                        <Stack
+                                                                            gap="xs"
+                                                                            style={{
+                                                                                position:
+                                                                                    'relative',
+                                                                            }}
+                                                                        >
+                                                                            <IconX
+                                                                                style={{
+                                                                                    position:
+                                                                                        'absolute',
+                                                                                    top: '0px',
+                                                                                    right: '2px',
+                                                                                    color: secondaryColors.DARKER,
+                                                                                    zIndex: 50,
+                                                                                }}
+                                                                                onClick={() =>
+                                                                                    handleRemoveCustomTestCase(
+                                                                                        result.id,
+                                                                                    )
+                                                                                }
+                                                                            />
+                                                                            <Group
+                                                                                gap="xs"
+                                                                                justify="space-between"
+                                                                            >
+                                                                                <Group>
+                                                                                    <Box
+                                                                                        style={{
+                                                                                            color: primaryColors.BACK_GROUND,
+                                                                                        }}
+                                                                                    ></Box>
+                                                                                    <Text
+                                                                                        c="white"
+                                                                                        size="sm"
+                                                                                        fw={
+                                                                                            500
+                                                                                        }
+                                                                                    >
+                                                                                        Test
+                                                                                        Case{' '}
+                                                                                        {index +
+                                                                                            1}
+                                                                                    </Text>
+                                                                                </Group>
+                                                                            </Group>
+
+                                                                            {result.output && (
+                                                                                <Group gap="md">
+                                                                                    <Group gap="xs">
+                                                                                        <IconClock
+                                                                                            size={
+                                                                                                12
+                                                                                            }
+                                                                                            color="#6b7280"
+                                                                                        />
+                                                                                        <Text
+                                                                                            c="gray.4"
+                                                                                            size="xs"
+                                                                                        >
+                                                                                            {result.runtime?.toFixed(
+                                                                                                2,
+                                                                                            )}
+                                                                                            ms
+                                                                                        </Text>
+                                                                                    </Group>
+                                                                                    <Group gap="xs">
+                                                                                        <IconMeteor
+                                                                                            size={
+                                                                                                12
+                                                                                            }
+                                                                                            color="#6b7280"
+                                                                                        />
+                                                                                        <Text
+                                                                                            c="gray.4"
+                                                                                            size="xs"
+                                                                                        >
+                                                                                            {result.memory?.toFixed(
+                                                                                                2,
+                                                                                            )}
+                                                                                            MB
+                                                                                        </Text>
+                                                                                    </Group>
+                                                                                </Group>
+                                                                            )}
+                                                                        </Stack>
+                                                                    </Accordion.Control>
+                                                                    <Accordion.Panel
+                                                                        style={{
+                                                                            width: '100%',
+                                                                        }}
+                                                                    >
+                                                                        <Stack
+                                                                            gap="sm"
+                                                                            p="xs"
+                                                                            style={{
+                                                                                backgroundColor:
+                                                                                    'rgba(30, 41, 59, 0.6)',
+                                                                                borderRadius:
+                                                                                    '10px',
+                                                                                border: '0px',
+                                                                                overflowY:
+                                                                                    'scroll',
+                                                                                maxHeight:
+                                                                                    '40vh',
+                                                                            }}
+                                                                        >
+                                                                            <div>
+                                                                                <Text
+                                                                                    c="gray.4"
+                                                                                    size="xs"
+                                                                                    fw={
+                                                                                        500
+                                                                                    }
+                                                                                >
+                                                                                    Input:
+                                                                                </Text>
+                                                                                <Card
+                                                                                    radius="sm"
+                                                                                    p="xs"
+                                                                                    style={{
+                                                                                        backgroundColor:
+                                                                                            'rgba(15,23,42,0.7)',
+                                                                                    }}
+                                                                                >
+                                                                                    <Text
+                                                                                        c="white"
+                                                                                        size="sm"
+                                                                                        ff="monospace"
+                                                                                    >
+                                                                                        {
+                                                                                            result.input
+                                                                                        }
+                                                                                    </Text>
+                                                                                </Card>
+                                                                            </div>
+                                                                            {result.output && (
+                                                                                <div>
+                                                                                    <Text
+                                                                                        c="gray.4"
+                                                                                        size="xs"
+                                                                                        fw={
+                                                                                            500
+                                                                                        }
+                                                                                    >
+                                                                                        Your
+                                                                                        Output:
+                                                                                    </Text>
+                                                                                    <Card
+                                                                                        withBorder
+                                                                                        radius="sm"
+                                                                                        p="xs"
+                                                                                        style={{
+                                                                                            backgroundColor:
+                                                                                                'rgba(15,23,42,0.7)',
+                                                                                            border: '1px solid #10b981',
+                                                                                        }}
+                                                                                    >
+                                                                                        <Text
+                                                                                            c="teal.3"
+                                                                                            size="sm"
+                                                                                            ff="monospace"
+                                                                                        >
+                                                                                            {
+                                                                                                result.output
+                                                                                            }
+                                                                                        </Text>
+                                                                                    </Card>
+                                                                                </div>
+                                                                            )}
+
+                                                                            {result.console &&
+                                                                                result.console !=
+                                                                                    '' && (
+                                                                                    <div>
+                                                                                        <Text
+                                                                                            c="gray.4"
+                                                                                            size="xs"
+                                                                                            fw={
+                                                                                                500
+                                                                                            }
+                                                                                        >
+                                                                                            Console:
+                                                                                        </Text>
+                                                                                        <Card
+                                                                                            withBorder
+                                                                                            radius="sm"
+                                                                                            p="xs"
+                                                                                            style={{
+                                                                                                backgroundColor:
+                                                                                                    'rgba(15,23,42,0.7)',
+                                                                                                border: '1px solid #10b981',
+                                                                                            }}
+                                                                                        >
+                                                                                            <Textarea
+                                                                                                c="teal.3"
+                                                                                                size="sm"
+                                                                                                ff="monospace"
+                                                                                                value={
+                                                                                                    result.console
+                                                                                                }
+                                                                                                readOnly
+                                                                                                styles={{
+                                                                                                    input: {
+                                                                                                        backgroundColor:
+                                                                                                            'transparent',
+                                                                                                        border: '0px',
+                                                                                                        color: textColors.GRAY,
+                                                                                                        padding:
+                                                                                                            '0px',
+                                                                                                    },
+                                                                                                }}
+                                                                                            />
+                                                                                        </Card>
+                                                                                    </div>
+                                                                                )}
+                                                                        </Stack>
+                                                                    </Accordion.Panel>
+                                                                </Accordion.Item>
+                                                            );
+                                                        },
+                                                    )}
+                                                </Accordion>
+                                            </Stack>
+                                        </>
+                                    )
+                                )}
+                                <Stack mt={'xl'}>
+                                    <TextInput
+                                        value={customTestCaseInput}
+                                        onChange={(e) =>
+                                            setCustomTestCaseInput(
+                                                e.target.value,
+                                            )
+                                        }
+                                        styles={{
+                                            input: {
+                                                backgroundColor:
+                                                    secondaryColors.DARK,
+                                                border: '1px solid #475569',
+                                                color: 'white',
+                                            },
+                                        }}
+                                    />
+                                    <Button
+                                        color="teal"
+                                        onClick={handleAddCustomTestCase}
+                                        variant="outline"
+                                    >
+                                        Add Testcase
+                                    </Button>
+                                </Stack>
                             </ScrollArea>
                         </Tabs.Panel>
                     </Tabs>

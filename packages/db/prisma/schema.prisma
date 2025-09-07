@@ -99,6 +99,13 @@ model TestCase {
   hidden    Boolean @default(false)
 }
 
+model CustomTestCase {
+  id        Int     @id @unique @default(autoincrement())
+  problemId Int
+  input     String
+  problem   Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+}
+
 enum Level {
   STARTER
   APPRENTICE
@@ -134,6 +141,7 @@ model Problem {
   exampleTestCases ExampleTestCases[]
   submittedResults SubmittedResult[]
   createdAt        DateTime           @default(now())
+  customTestCases  CustomTestCase[]
 }
 
 model ExampleTestCases {

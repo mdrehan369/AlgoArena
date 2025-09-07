@@ -1,4 +1,10 @@
-import { Language, PrismaClient, Problem } from "@repo/db";
+import {
+  CustomTestCase,
+  Language,
+  PrismaClient,
+  Problem,
+  TestCase,
+} from "@repo/db";
 import { RunnerRepository } from "./runner.repository.js";
 import { ProblemRepository } from "../problems/problem.repository.js";
 import cExecutor from "src/utils/executors/cExecutor.js";
@@ -8,45 +14,98 @@ import jsExecutor from "src/utils/executors/jsExecutor.js";
 import { Outputs } from "src/types/runner.types.js";
 
 export class RunnerService {
-  private runnerRepository: RunnerRepository
-  private problemRepository: ProblemRepository
+  private runnerRepository: RunnerRepository;
+  private problemRepository: ProblemRepository;
 
   constructor(prisma: PrismaClient) {
-    this.runnerRepository = new RunnerRepository(prisma)
-    this.problemRepository = new ProblemRepository(prisma)
+    this.runnerRepository = new RunnerRepository(prisma);
+    this.problemRepository = new ProblemRepository(prisma);
   }
 
-  async testCode(code: string, problemId: Problem['id'], language: Language, withHiddenTestcases?: boolean): Promise<{ success: boolean, message?: string, data?: Outputs[], error?: string, errorCode?: number }> {
-    if (code == "") return { success: false, message: "No code given", errorCode: 400 }
+  async testCode(
+    code: string,
+    problemId: Problem["id"],
+    language: Language,
+    withHiddenTestcases?: boolean,
+    withCustomTestCases?: boolean,
+  ): Promise<{
+    success: boolean;
+    message?: string;
+    data?: Outputs[];
+    error?: string;
+    errorCode?: number;
+  }> {
+    if (code == "")
+      return { success: false, message: "No code given", errorCode: 400 };
 
-    const result = await this.problemRepository.getProblemById(problemId, withHiddenTestcases)
-    if (!result.success) return { success: false, message: "No problem found", errorCode: 404 }
+    const result = await this.problemRepository.getProblemById(
+      problemId,
+      withHiddenTestcases,
+    );
+    if (!result.success)
+      return { success: false, message: "No problem found", errorCode: 404 };
 
-    const problem = result.data!
-    const driverCode = problem.driverCodes.find(code => code.language == language) || problem.driverCodes[0]
+    const problem = result.data!;
+    const driverCode =
+      problem.driverCodes.find((code) => code.language == language) ||
+      problem.driverCodes[0];
 
     // const fullCode = Buffer.from(driverCode.beforeCode, "base64").toString("utf-8") + code + Buffer.from(driverCode.afterCode, "base64").toString("utf-8")
-    const fullCode = driverCode.beforeCode.replaceAll("\\n", "\n") + code + driverCode.afterCode.replaceAll("\\n", "\n")
-    let executor = null
+    const fullCode =
+      driverCode.beforeCode.replaceAll("\\n", "\n") +
+      code +
+      driverCode.afterCode.replaceAll("\\n", "\n");
+    let executor = null;
     switch (language) {
       case Language.C:
-        executor = cExecutor
-        break
+        executor = cExecutor;
+        break;
       case Language.CPP:
-        executor = cppExecutor
-        break
+        executor = cppExecutor;
+        break;
       case Language.PYTHON:
-        executor = pythonExecutor
-        break
+        executor = pythonExecutor;
+        break;
       case Language.JS:
-        executor = jsExecutor
-        break
+        executor = jsExecutor;
+        break;
       default:
-        executor = cppExecutor
+        executor = cppExecutor;
     }
 
-    const results = await executor(fullCode, problem.testCases, problem.timeLimit, problem.memoryLimit)
-    return results
+    let cases: TestCase[] | CustomTestCase[] = problem.testCases;
+    if (withCustomTestCases) cases = problem.customTestCases;
+    const results = await executor(
+      fullCode,
+      cases,
+      problem.timeLimit,
+      problem.memoryLimit,
+    );
+    return results;
   }
 
+  async testCodeAgainstCustomTestCases(
+    code: string,
+    problemId: Problem["id"],
+    language: Language,
+    customTestCases: CustomTestCase[],
+  ): Promise<{
+    success: boolean;
+    message?: string;
+    data?: Outputs[];
+    error?: string;
+    errorCode?: number;
+  }> {
+    const problem = await this.problemRepository.getProblemById(problemId);
+    if (!problem)
+      return { success: false, message: "No problem found", errorCode: 404 };
+
+    await this.runnerRepository.generateCustomTestCases(customTestCases);
+
+    const results = await this.testCode(code, problemId, language, false, true);
+
+    await this.runnerRepository.deleteCustomTestCases(customTestCases);
+
+    return results;
+  }
 }

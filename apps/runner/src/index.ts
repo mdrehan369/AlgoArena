@@ -1,8 +1,6 @@
 import Fastify from "fastify";
-import fastifyMultipart from "@fastify/multipart";
 import { config } from "dotenv";
-import cors from "@fastify/cors";
-import cookies from "@fastify/cookie";
+import kafkaPlugin from "./plugins/kafka.plugin";
 
 config();
 const fastify = Fastify({
@@ -12,21 +10,6 @@ const fastify = Fastify({
     },
   },
   logger: true,
-});
-
-await fastify.register(fastifyMultipart, {
-  limits: {
-    fileSize: 10 * 1024 * 1024, // 10 MB
-  },
-});
-
-await fastify.register(cookies, {
-  secret: "secret",
-});
-
-await fastify.register(cors, {
-  origin: ["http://localhost:3000", "http://web-dev:3000"], // your frontend origin
-  credentials: true, // allow cookies to be sent
 });
 
 fastify.get(
@@ -53,6 +36,8 @@ fastify.get(
     };
   },
 );
+
+await fastify.register(kafkaPlugin);
 
 const start = async () => {
   try {

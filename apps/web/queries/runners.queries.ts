@@ -5,6 +5,7 @@ export const runTest = async (data: {
     code: string;
     language: Language;
     problemId: Problem['id'];
+    id: string;
 }) => {
     try {
         const response = await api.post('/runner/test', data);

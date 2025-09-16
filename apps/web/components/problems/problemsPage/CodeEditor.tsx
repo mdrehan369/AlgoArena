@@ -27,7 +27,6 @@ import {
     setCompileError,
     setCustomTestCaseResults,
     setLanguage,
-    setTestResults,
     startRunTest,
     stopCustomTest,
     stopRunTest,
@@ -89,6 +88,7 @@ function ProblemEditor() {
         language,
         isCustomTestCasesRunning,
         customTestCases,
+        jobId,
     } = useAppSelector((state) => state.problemPage);
     const placeHolder =
         useAppSelector(
@@ -104,11 +104,6 @@ function ProblemEditor() {
         mutationKey: RunTestMutationKeys,
         onSuccess: (data) => {
             console.log(data);
-            if (!data.error) dispatch(setTestResults(data.data || []));
-            else dispatch(setCompileError(data.error));
-        },
-        onSettled: () => {
-            dispatch(stopRunTest());
         },
     });
 
@@ -128,7 +123,12 @@ function ProblemEditor() {
 
     useEffect(() => {
         if (isRunning) {
-            runTestMutation.mutate({ code, language, problemId: problem!.id });
+            runTestMutation.mutate({
+                code,
+                language,
+                problemId: problem!.id,
+                id: jobId,
+            });
         }
 
         if (isCustomTestCasesRunning) {

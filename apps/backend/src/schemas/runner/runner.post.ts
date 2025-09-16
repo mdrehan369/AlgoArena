@@ -11,6 +11,7 @@ export const RunTestSchema: FastifySchema = {
     required: ["code", "language", "problemId"],
     properties: {
       code: { type: "string", description: "Code to run tests" },
+      id: { type: "string", description: "Job ID" },
       problemId: {
         type: "string",
         description: "Problem that you are solving",

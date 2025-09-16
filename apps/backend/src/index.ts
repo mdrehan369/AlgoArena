@@ -13,8 +13,11 @@ import cors from "@fastify/cors";
 import cookies from "@fastify/cookie";
 import authPlugin from "./plugins/auth.plugin.js";
 import queryParserPlugin from "./plugins/queryParser.plugin.js";
+import kafkaPlugin from "./plugins/kafka.plugin.js";
+import clientMapPlugin from "./plugins/clientmap.plugin.js";
 import { statController } from "./modules/stats/stat.controller.js";
 import { runnerController } from "./modules/runner/runner.controller.js";
+import kafkaConsumerPlugin from "./plugins/kafkaConsumer.plugin.js";
 
 config();
 const fastify = Fastify({
@@ -45,6 +48,12 @@ await fastify.register(cookies, {
 await fastify.register(queryParserPlugin);
 
 await fastify.register(prismaPlugin);
+
+await fastify.register(kafkaPlugin);
+
+await fastify.register(clientMapPlugin);
+
+await fastify.register(kafkaConsumerPlugin);
 
 await fastify.register(cors, {
   origin: [

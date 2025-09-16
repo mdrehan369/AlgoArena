@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import { CustomTestCase } from 'types/TestCase.types';
 import { FullProblem } from 'types/problems.types';
 import { Outputs } from 'types/TestCase.types';
+import { getRandomInt } from '@utils/generateRandomInt';
 
 enum Language {
     C = 'C',
@@ -11,6 +12,7 @@ enum Language {
 }
 
 export interface ProblemState {
+    jobId: string;
     problem: FullProblem | null;
     code: string;
     language: Language;
@@ -23,6 +25,7 @@ export interface ProblemState {
 }
 
 const initialState: ProblemState = {
+    jobId: getRandomInt(1000, 10000).toString(),
     problem: null,
     code: '',
     language: Language.CPP,

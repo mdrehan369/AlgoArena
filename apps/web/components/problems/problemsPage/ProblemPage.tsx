@@ -7,9 +7,14 @@ import ProblemHeader from './Header';
 import { useAppDispatch, useAppSelector } from '@lib/hooks';
 import {
     setCompileError,
+    setCustomTestCaseResults,
+    setFinalResult,
     setProblemStatement,
+    setTestCases,
     setTestResults,
+    stopCustomTest,
     stopRunTest,
+    stopSubmitting,
 } from '@lib/features/problemsPage/problemPage.slice';
 import LeftPane from './LeftPane.tsx';
 import RightPane from './RightPane.tsx';
@@ -30,10 +35,22 @@ export default function ProblemPage({ problem }: { problem: FullProblem }) {
             eventSource.onmessage = (event) => {
                 const data = JSON.parse(event.data);
                 console.log('Received:', data);
-                if (!data.error) dispatch(setTestResults(data.data || []));
-                else dispatch(setCompileError(data.error));
 
-                dispatch(stopRunTest());
+                if (data.error) dispatch(setCompileError(data.error));
+
+                if (data.action == 'TEST') {
+                    dispatch(setTestResults(data.data || []));
+                    dispatch(stopRunTest());
+                } else if (data.action == 'CUSTOM') {
+                    dispatch(setCustomTestCaseResults(data.data || []));
+                    dispatch(stopCustomTest());
+                } else {
+                    const submissionState = data.data.submission;
+                    const outputs = data.data.outputs;
+                    dispatch(setFinalResult(submissionState));
+                    dispatch(setTestCases(outputs));
+                    dispatch(stopSubmitting());
+                }
             };
             eventSourceRef.current = eventSource;
         }

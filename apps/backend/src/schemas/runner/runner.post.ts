@@ -61,7 +61,7 @@ export const RunCustomTestSchema: FastifySchema = {
   summary: "run your code to test against the custom test cases",
   body: {
     type: "object",
-    required: ["code", "language", "customTestCases"],
+    required: ["code", "language", "customTestCases", "id"],
     properties: {
       code: { type: "string", description: "Code to run tests" },
       language: {
@@ -73,6 +73,10 @@ export const RunCustomTestSchema: FastifySchema = {
       problemId: {
         type: "string",
         description: "Problem that you are solving",
+      },
+      id: {
+        type: "string",
+        description: "Execution request id",
       },
       customTestCases: {
         type: "array",

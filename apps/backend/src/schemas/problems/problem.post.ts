@@ -18,6 +18,7 @@ export const SubmitProblemSchema: FastifySchema = {
         description: "Problem Id to run submission",
       },
       code: { type: "string", description: "Code to run" },
+      id: { type: "string", description: "ID for execution request" },
       language: {
         type: "string",
         default: "CPP",

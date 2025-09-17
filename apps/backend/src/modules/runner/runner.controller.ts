@@ -1,10 +1,4 @@
-import {
-  FastifyInstance,
-  FastifyPluginCallback,
-  FastifyReply,
-  FastifyRequest,
-} from "fastify";
-import { RunnerService } from "./runner.service.js";
+import { FastifyPluginCallback, FastifyReply, FastifyRequest } from "fastify";
 import {
   RunCustomTestSchema,
   RunTestSchema,
@@ -13,16 +7,10 @@ import { CustomTestCase, Language, Problem } from "@repo/db";
 import { EnvConfig } from "@/config/env.config.js";
 
 export const runnerController: FastifyPluginCallback = (
-  instance,
+  fastify,
   opts,
   done,
 ) => {
-  const fastify = instance as FastifyInstance & {
-    runnerService: RunnerService;
-  };
-
-  fastify.decorate("runnerService", new RunnerService(fastify.prisma));
-
   fastify.post(
     "/test",
     { schema: RunTestSchema },
@@ -49,20 +37,10 @@ export const runnerController: FastifyPluginCallback = (
         messages: [
           {
             key: id,
-            value: JSON.stringify(request.body),
+            value: JSON.stringify({ ...request.body, action: "TEST" }),
           },
         ],
       });
-
-      // const response = await fastify.runnerService.testCode(
-      //   code,
-      //   Number(problemId),
-      //   language,
-      // );
-      //
-      // if (!response.success)
-      //   return reply.status(response.errorCode || 400).send(response);
-      // return response;
 
       return reply.send({
         success: true,
@@ -77,6 +55,7 @@ export const runnerController: FastifyPluginCallback = (
     async (
       request: FastifyRequest<{
         Body: {
+          id: string;
           code: string;
           language: Language;
           problemId: Problem["id"];
@@ -85,23 +64,27 @@ export const runnerController: FastifyPluginCallback = (
       }>,
       reply,
     ) => {
-      const { code, customTestCases, language, problemId } = request.body;
+      const { code, id } = request.body;
 
       if (code == "")
         return reply
           .status(400)
           .send({ success: false, message: "No code given" });
 
-      const response =
-        await fastify.runnerService.testCodeAgainstCustomTestCases(
-          code,
-          Number(problemId),
-          language,
-          customTestCases,
-        );
-      if (!response.success)
-        return reply.status(response.errorCode || 400).send(response);
-      return response;
+      await fastify.kafkaProducer.producer.send({
+        topic: "execution-requests",
+        messages: [
+          {
+            key: id,
+            value: JSON.stringify({ ...request.body, action: "CUSTOM" }),
+          },
+        ],
+      });
+
+      return reply.send({
+        success: true,
+        message: `Execution Request Send With ID ${id}!`,
+      });
     },
   );
 
@@ -121,6 +104,9 @@ export const runnerController: FastifyPluginCallback = (
         Connection: "keep-alive",
         "Access-Control-Allow-Origin":
           fastify.getEnvs<EnvConfig>().FRONTEND_URL,
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Expose-Headers": "*",
+        "Access-Control-Allow-Methods": "GET, OPTIONS",
       });
 
       reply.hijack();

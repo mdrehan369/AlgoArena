@@ -3,6 +3,7 @@ import { CustomTestCase } from 'types/TestCase.types';
 import { FullProblem } from 'types/problems.types';
 import { Outputs } from 'types/TestCase.types';
 import { getRandomInt } from '@utils/generateRandomInt';
+import { SubmittedResult } from '@repo/db';
 
 enum Language {
     C = 'C',
@@ -22,6 +23,11 @@ export interface ProblemState {
     compileError: string | null;
     isSubmiting: boolean;
     isCustomTestCasesRunning: boolean;
+    submitResults: {
+        testCases: Outputs[];
+        finalResult: SubmittedResult | null;
+        isPending: boolean;
+    };
 }
 
 const initialState: ProblemState = {
@@ -35,6 +41,11 @@ const initialState: ProblemState = {
     compileError: null,
     isSubmiting: false,
     isCustomTestCasesRunning: false,
+    submitResults: {
+        finalResult: null,
+        testCases: [],
+        isPending: false,
+    },
 };
 
 const problemsSlice = createSlice({
@@ -98,6 +109,18 @@ const problemsSlice = createSlice({
                 };
             });
         },
+        setFinalResult: (state, action: { payload: SubmittedResult }) => {
+            state.submitResults.finalResult = action.payload;
+        },
+        setTestCases: (state, action: { payload: Outputs[] }) => {
+            state.submitResults.testCases = action.payload;
+        },
+        startSubmitting: (state) => {
+            state.submitResults.isPending = true;
+        },
+        stopSubmitting: (state) => {
+            state.submitResults.isPending = false;
+        },
     },
 });
 
@@ -115,5 +138,9 @@ export const {
     startCustomTest,
     stopCustomTest,
     setCustomTestCaseResults,
+    setFinalResult,
+    setTestCases,
+    startSubmitting,
+    stopSubmitting,
 } = problemsSlice.actions;
 export default problemsSlice.reducer;

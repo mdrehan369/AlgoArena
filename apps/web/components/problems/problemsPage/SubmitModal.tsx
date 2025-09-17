@@ -1,6 +1,10 @@
 'use client';
 
-import { setIsSubmiting } from '@lib/features/problemsPage/problemPage.slice';
+import { useSession } from '@lib/auth-client';
+import {
+    setIsSubmiting,
+    startSubmitting,
+} from '@lib/features/problemsPage/problemPage.slice';
 import { useAppDispatch, useAppSelector } from '@lib/hooks';
 import {
     Modal,
@@ -13,7 +17,6 @@ import {
     Button,
     Transition,
 } from '@mantine/core';
-import { SubmittedResult } from '@repo/db';
 import {
     IconCheck,
     IconX,
@@ -31,22 +34,21 @@ import { Outputs } from 'types/TestCase.types';
 type SubmissionState = 'running' | 'completed';
 
 export default function SubmitModal() {
-    const opened = useAppSelector((state) => state.problemPage.isSubmiting);
-    const { language, problem, code } = useAppSelector(
-        (state) => state.problemPage,
-    );
-    const [testCases, setTestCases] = useState<Outputs[]>([]);
+    const {
+        language,
+        problem,
+        code,
+        jobId,
+        isSubmiting: opened,
+        submitResults: { finalResult, testCases, isPending },
+    } = useAppSelector((state) => state.problemPage);
 
     const [currentTestCase, setCurrentTestCase] = useState(0);
-    const [finalResult, setFinalResult] = useState<SubmittedResult | null>(
-        null,
-    );
     const [compilationError, setCompilationError] = useState<string | null>(
         null,
     );
 
     const dispatch = useAppDispatch();
-
     const submit = useMutation({
         mutationFn: submitProblem,
         mutationKey: SubmitProblemKeys,
@@ -54,28 +56,27 @@ export default function SubmitModal() {
             console.log(error);
         },
         onSuccess(data) {
-            // Compilation error
-            if (data.error) {
-                setCompilationError(data.error);
-            } else {
-                const submissionState = data.data.submission;
-                const outputs = data.data.outputs;
-                setFinalResult(submissionState);
-                setTestCases(outputs);
-            }
+            console.log(data);
         },
     });
+
+    const session = useSession();
 
     useEffect(() => {
         if (!opened) return;
 
         // Reset state when modal opens
         setCurrentTestCase(0);
-        setFinalResult(null);
-        setTestCases([]);
         setCompilationError(null);
+        dispatch(startSubmitting());
 
-        submit.mutate({ code, language, problemId: problem!.id });
+        submit.mutate({
+            userId: session.data!.user.id,
+            code,
+            language,
+            problemId: problem!.id,
+            id: jobId,
+        });
     }, [opened]);
 
     const getStateConfig = (state: SubmissionState) => {
@@ -106,9 +107,7 @@ export default function SubmitModal() {
         }
     };
 
-    const stateConfig = getStateConfig(
-        submit.isPending ? 'running' : 'completed',
-    );
+    const stateConfig = getStateConfig(isPending ? 'running' : 'completed');
 
     const getTestCaseIcon = (status: Outputs['status']) => {
         switch (status) {

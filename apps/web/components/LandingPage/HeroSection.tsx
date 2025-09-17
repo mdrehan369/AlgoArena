@@ -1,24 +1,23 @@
 import {
-  Container,
-  Title,
-  Text,
-  Button,
-  Group,
-  Stack,
-  Badge,
-  Box,
-  SimpleGrid,
-} from "@mantine/core"
-import {
-  IconArrowRight,
-} from "@tabler/icons-react"
+    Container,
+    Title,
+    Text,
+    Button,
+    Group,
+    Stack,
+    Badge,
+    Box,
+    SimpleGrid,
+} from '@mantine/core';
+import { IconArrowRight } from '@tabler/icons-react';
 
 export default function HeroSection() {
     return (
         <Box
             style={{
-                background: "linear-gradient(135deg, rgba(20, 184, 166, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%)",
-                position: "relative",
+                background:
+                    'linear-gradient(135deg, rgba(20, 184, 166, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%)',
+                position: 'relative',
             }}
         >
             <Container size="xl" py={120}>
@@ -35,26 +34,36 @@ export default function HeroSection() {
                         c="white"
                         style={{
                             lineHeight: 1.1,
-                            maxWidth: "800px",
+                            maxWidth: '800px',
                         }}
                     >
-                        Code. Compete.{" "}
-                        <Text span variant="gradient" gradient={{ from: "teal", to: "blue" }} inherit>
+                        Code. Compete.{' '}
+                        <Text
+                            span
+                            variant="gradient"
+                            gradient={{ from: 'teal', to: 'blue' }}
+                            inherit
+                        >
                             Create.
                         </Text>
                     </Title>
 
                     <Text size="xl" ta="center" c="gray.3" maw={700}>
-                        The ultimate competitive programming platform where you don&apos;t just solve problems—
+                        The ultimate competitive programming platform where you
+                        don&apos;t just solve problems—
                         <Text span c="teal" fw={600}>
-                            {" "}
+                            {' '}
                             you create competitions
-                        </Text>{" "}
+                        </Text>{' '}
                         and build a community of elite coders.
                     </Text>
 
                     <Group>
-                        <Button size="lg" color="teal" rightSection={<IconArrowRight size={20} />}>
+                        <Button
+                            size="lg"
+                            color="teal"
+                            rightSection={<IconArrowRight size={20} />}
+                        >
                             Start Coding Now
                         </Button>
                     </Group>
@@ -82,5 +91,5 @@ export default function HeroSection() {
                 </Stack>
             </Container>
         </Box>
-    )
+    );
 }

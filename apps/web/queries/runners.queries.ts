@@ -17,6 +17,7 @@ export const runTest = async (data: {
 };
 
 export const runCustomTest = async (data: {
+    id: string;
     code: string;
     language: Language;
     problemId: Problem['id'];

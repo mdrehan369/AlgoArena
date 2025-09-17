@@ -29,7 +29,6 @@ import {
     setLanguage,
     startRunTest,
     stopCustomTest,
-    stopRunTest,
 } from '@lib/features/problemsPage/problemPage.slice';
 import { useMutation } from '@tanstack/react-query';
 import { runCustomTest, runTest } from 'queries/runners.queries';
@@ -112,12 +111,6 @@ function ProblemEditor() {
         mutationKey: RunCustomTestMutationKeys,
         onSuccess: (data) => {
             console.log(data);
-            if (!data.error)
-                dispatch(setCustomTestCaseResults(data.data || []));
-            else dispatch(setCompileError(data.error));
-        },
-        onSettled: () => {
-            dispatch(stopCustomTest());
         },
     });
 
@@ -133,6 +126,7 @@ function ProblemEditor() {
 
         if (isCustomTestCasesRunning) {
             runCustomTestMutation.mutate({
+                id: jobId,
                 code,
                 language,
                 problemId: problem!.id,

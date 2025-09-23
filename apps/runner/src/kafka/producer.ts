@@ -1,22 +1,19 @@
-import { client } from "./client.js";
 import { Partitioners, Producer } from "kafkajs";
+import { client } from "./client.js";
 
 export class KafkaProducer {
   producer: Producer;
 
   constructor() {
-    client.logger().info("Producer connecting...");
     this.producer = client.producer({
       allowAutoTopicCreation: false,
       createPartitioner: Partitioners.LegacyPartitioner,
     });
-    this.producer.connect().then((_val) => {
-      client.logger().info("Producer connected!");
-    });
   }
 
-  async disconnect() {
-    await client.admin().disconnect();
+  async connect() {
+    await this.producer.connect();
+    client.logger().info("Producer connected!");
   }
 
   async sendExecutionResponses(data: Record<string, any>, id: string) {
@@ -27,14 +24,16 @@ export class KafkaProducer {
         messages: [
           {
             key: id,
-            value: JSON.stringify({
-              ...data,
-            }),
+            value: JSON.stringify({ ...data }),
           },
         ],
       });
     } catch (error) {
-      console.log(error);
+      console.error("Producer send error:", error);
     }
+  }
+
+  async disconnect() {
+    await this.producer.disconnect();
   }
 }

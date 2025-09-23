@@ -10,13 +10,19 @@ export async function kafkaConsumerInit() {
       groupId: "consumer-group-1",
     });
 
-    client.logger().info("Consomer connecting...");
+    client.logger().info("Consumer connecting...");
     await consumer.connect();
+    client
+      .logger()
+      .info(
+        `Consumer with client ID ${process.env.KAFKA_CLIENT_ID} with broker ${process.env.KAFKA_BROKER_HOST}`,
+      );
     await consumer.subscribe({ topics: ["execution-requests"] });
 
     const runnerService = new RunnerService(prisma);
     const problemService = new ProblemService(prisma);
     const kafkaProducer = new KafkaProducer();
+    await kafkaProducer.connect();
 
     consumer.run({
       eachMessage: async ({ topic, partition, message, heartbeat }) => {

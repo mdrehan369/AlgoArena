@@ -1,6 +1,6 @@
 import Fastify from "fastify";
 import { config } from "dotenv";
-import kafkaPlugin from "./plugins/kafka.plugin";
+import kafkaPlugin from "./plugins/kafka.plugin.js";
 
 config();
 const fastify = Fastify({

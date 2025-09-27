@@ -17,7 +17,7 @@ export class KafkaProducer {
   }
 
   async disconnect() {
-    await client.admin().disconnect();
+    await this.producer.disconnect();
   }
 
   async sendExecutionRequests(params: {

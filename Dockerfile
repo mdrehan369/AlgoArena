@@ -1,6 +1,20 @@
 # Root Dockerfile for Turbo monorepo
 FROM node AS base
 
+FROM base AS runner-dev
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm i
+
+COPY ./ ./
+
+# RUN npx prisma generate --schema=./packages/db/prisma/schema.prisma
+# RUN cd ./packages/db && DATABASE_URL="postgresql://postgres:1234@algoarenaDatabase:5432/algoarena" npm run db:migrate
+RUN cd ./packages/db && DATABASE_URL="postgresql://postgres:1234@algoarenaDatabase:5432/algoarena" npm run db:generate && DATABASE_URL="postgresql://postgres:1234@algoarenaDatabase:5432/algoarena" npm run build
+
+CMD ["npx", "turbo", "run", "dev", "--filter=runner"]
+
 # Install dependencies only when needed
 FROM base AS deps
 WORKDIR /app
@@ -146,18 +160,4 @@ EXPOSE 8000
 
 CMD ["node", "apps/runner/dist/src/index.js"]
 
-
-FROM base AS runner-dev
-WORKDIR /app
-
-COPY package*.json .
-RUN npm ci
-
-COPY . .
-
-# RUN npx prisma generate --schema=./packages/db/prisma/schema.prisma
-# RUN cd ./packages/db && DATABASE_URL="postgresql://postgres:1234@algoarenaDatabase:5432/algoarena" npm run db:migrate
-RUN cd ./packages/db && DATABASE_URL="postgresql://postgres:1234@algoarenaDatabase:5432/algoarena" npm run db:generate && DATABASE_URL="postgresql://postgres:1234@algoarenaDatabase:5432/algoarena" npm run build
-
-CMD ["npx", "turbo", "run", "dev", "--filter=runner"]
 

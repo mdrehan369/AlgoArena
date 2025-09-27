@@ -18,6 +18,7 @@ import clientMapPlugin from "./plugins/clientmap.plugin.js";
 import { statController } from "./modules/stats/stat.controller.js";
 import { runnerController } from "./modules/runner/runner.controller.js";
 import kafkaConsumerPlugin from "./plugins/kafkaConsumer.plugin.js";
+import dockerPlugin from "./plugins/docker.plugin.js";
 
 config();
 const fastify = Fastify({
@@ -54,6 +55,8 @@ await fastify.register(kafkaPlugin);
 await fastify.register(clientMapPlugin);
 
 await fastify.register(kafkaConsumerPlugin);
+
+await fastify.register(dockerPlugin);
 
 await fastify.register(cors, {
   origin: [
@@ -95,6 +98,12 @@ fastify.register(problemController, { prefix: "/api/v1/problems" });
 fastify.register(statController, { prefix: "/api/v1/stats" });
 fastify.register(runnerController, { prefix: "/api/v1/runner" });
 
+fastify.addHook("onClose", async (instance) => {
+  await instance.dockerManager.cleanup();
+  await instance.kafkaConsumer.disconnect();
+  await instance.kafkaProducer.disconnect();
+});
+
 const start = async () => {
   try {
     fastify.ready(async (err) => {
@@ -109,5 +118,17 @@ const start = async () => {
     process.exit(1);
   }
 };
+
+const exitSignals = ["SIGINT", "SIGTERM"];
+
+for (const signal of exitSignals) {
+  process.on(signal, () => {
+    console.log("exiting");
+    fastify
+      .close()
+      .then(() => process.exit(1))
+      .catch((err) => console.log("Error while exiting", err));
+  });
+}
 
 start();

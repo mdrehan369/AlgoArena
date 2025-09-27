@@ -1,5 +1,6 @@
 import { client } from "./client";
 import fp from "fastify-plugin";
+import { Consumer } from "kafkajs";
 
 export default fp(async (fastify, _opts) => {
   const consumer = client.consumer({
@@ -10,12 +11,15 @@ export default fp(async (fastify, _opts) => {
   await consumer.connect();
   await consumer.subscribe({ topics: ["execution-responses"] });
 
+  fastify.decorate("kafkaConsumer", consumer);
+
   consumer.run({
     eachMessage: async ({ topic, partition, message, heartbeat }) => {
       client.logger().info("Incoming Message: ", {
         key: message.key?.toString(),
         value: message.value?.toString(),
         headers: message.headers,
+        partition,
       });
       if (!message.value) return;
 
@@ -31,3 +35,9 @@ export default fp(async (fastify, _opts) => {
 
   client.logger().info("Consumer listening...");
 });
+
+declare module "fastify" {
+  interface FastifyInstance {
+    kafkaConsumer: Consumer;
+  }
+}

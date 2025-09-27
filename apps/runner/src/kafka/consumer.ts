@@ -17,6 +17,7 @@ export async function kafkaConsumerInit() {
       .info(
         `Consumer with client ID ${process.env.KAFKA_CLIENT_ID} with broker ${process.env.KAFKA_BROKER_HOST}`,
       );
+
     await consumer.subscribe({ topics: ["execution-requests"] });
 
     const runnerService = new RunnerService(prisma);

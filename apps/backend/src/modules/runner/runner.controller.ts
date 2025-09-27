@@ -32,15 +32,21 @@ export const runnerController: FastifyPluginCallback = (
           .status(400)
           .send({ success: false, message: "No code given" });
 
-      await fastify.kafkaProducer.producer.send({
+      const partition = await fastify.dockerManager.assignTask();
+
+      const data = await fastify.kafkaProducer.producer.send({
         topic: "execution-requests",
         messages: [
           {
             key: id,
             value: JSON.stringify({ ...request.body, action: "TEST" }),
+            partition: partition || 0,
           },
         ],
       });
+
+      fastify.log.info(data);
+      fastify.log.info(partition);
 
       return reply.send({
         success: true,

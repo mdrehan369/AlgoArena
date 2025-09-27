@@ -3,6 +3,7 @@ import { config } from "dotenv";
 import kafkaPlugin from "./plugins/kafka.plugin.js";
 
 config();
+
 const fastify = Fastify({
   ajv: {
     customOptions: {

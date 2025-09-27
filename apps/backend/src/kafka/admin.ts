@@ -9,9 +9,8 @@ export async function initializeKafka() {
     const prevTopics = await admin.listTopics();
 
     if (
-      !prevTopics.find(
-        (val) => val == "execution-requests" || val == "execution-responses",
-      )
+      !prevTopics.find((val) => val == "execution-requests") ||
+      !prevTopics.find((val) => val == "execution-responses")
     ) {
       const topics = await admin.createTopics({
         topics: [

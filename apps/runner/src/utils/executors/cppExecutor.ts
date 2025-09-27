@@ -3,6 +3,7 @@ import fs from "fs";
 import { spawnSync } from "node:child_process";
 import { CustomTestCase, TestCase } from "@repo/db";
 import spawner from "../spawner.js";
+import path from "node:path";
 
 export default async function cppExecutor(
   code: string,
@@ -12,10 +13,14 @@ export default async function cppExecutor(
 ) {
   const uuid = randomUUID();
   const filename = `${uuid}.cpp`;
-  fs.writeFileSync(filename, code, "utf-8");
+  const filePath = path.join("/app/tmp", filename);
+  fs.writeFileSync(filePath, code, "utf-8");
+  const outputPath = path.join("/app/tmp", uuid);
+
+  fs.chmodSync(filePath, 0o755);
 
   try {
-    const compile = spawnSync("g++", [`${filename}`, "-o", `${uuid}`]);
+    const compile = spawnSync("g++", [`${filePath}`, "-o", `${outputPath}`]);
     if (compile.stderr && compile.stderr.toString() != "")
       return {
         success: true,
@@ -24,7 +29,14 @@ export default async function cppExecutor(
         errorCode: 400,
       };
 
-    return await spawner(`./${uuid}`, [], testCases, timeLimit, memoryLimit);
+    fs.chmodSync(outputPath, 0o755);
+    return await spawner(
+      `${outputPath}`,
+      [],
+      testCases,
+      timeLimit,
+      memoryLimit,
+    );
   } catch (error: any) {
     console.log(error);
     return {
@@ -34,7 +46,7 @@ export default async function cppExecutor(
       errorCode: 500,
     };
   } finally {
-    if (fs.existsSync(filename)) fs.unlinkSync(filename);
-    if (fs.existsSync(`./${uuid}`)) fs.unlinkSync(`./${uuid}`);
+    if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+    if (fs.existsSync(`${outputPath}`)) fs.unlinkSync(`${outputPath}`);
   }
 }

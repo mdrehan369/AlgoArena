@@ -1,14 +1,23 @@
-import { betterAuth } from "better-auth";
-import { prismaAdapter } from "better-auth/adapters/prisma";
-import { PrismaClient } from "@repo/db";
+import { betterAuth } from 'better-auth';
+import { prismaAdapter } from 'better-auth/adapters/prisma';
+import { PrismaClient } from '@repo/db';
+import { FieldAttribute, FieldType } from 'better-auth/db';
+
+export const additionalFieldProps: FieldAttribute<FieldType> = {
+    type: 'string',
+    defaultValue: '',
+    input: false,
+    required: false,
+    returned: true,
+};
 
 const prisma = new PrismaClient();
 export const auth = betterAuth({
     database: prismaAdapter(prisma, {
-        provider: "postgresql",
+        provider: 'postgresql',
     }),
     emailAndPassword: {
-        enabled: true
+        enabled: true,
     },
     socialProviders: {
         github: {
@@ -22,6 +31,16 @@ export const auth = betterAuth({
         facebook: {
             clientId: process.env.FACEBOOK_CLIENT_ID as string, // eslint-disable-line turbo/no-undeclared-env-vars
             clientSecret: process.env.FACEBOOK_CLIENT_SECRET as string, // eslint-disable-line turbo/no-undeclared-env-vars
-        }
-    }
+        },
+    },
+    user: {
+        additionalFields: {
+            bio: additionalFieldProps,
+            location: additionalFieldProps,
+            website: additionalFieldProps,
+            github: additionalFieldProps,
+            linkedin: additionalFieldProps,
+            x: additionalFieldProps,
+        },
+    },
 });

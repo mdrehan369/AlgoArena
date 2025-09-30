@@ -24,6 +24,10 @@ export const RunCustomTestMutationKeys = ['run', 'custom'];
 
 export const SubmitProblemKeys = ['submit'];
 
+export const UpdateProfileKeys = ['profile'];
+
+export const UpdateProfilePicture = ['profile', 'picture'];
+
 export const topicOptions = [
     'ARRAY',
     'STRING',

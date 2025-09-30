@@ -19,6 +19,8 @@ import { statController } from "./modules/stats/stat.controller.js";
 import { runnerController } from "./modules/runner/runner.controller.js";
 import kafkaConsumerPlugin from "./plugins/kafkaConsumer.plugin.js";
 import dockerPlugin from "./plugins/docker.plugin.js";
+import { profileController } from "./modules/profile/profile.controller.js";
+import imageKitPlugin from "./plugins/imageKit.plugin.js";
 
 config();
 const fastify = Fastify({
@@ -32,7 +34,7 @@ const fastify = Fastify({
 
 await fastify.register(fastifyMultipart, {
   limits: {
-    fileSize: 10 * 1024 * 1024, // 10 MB
+    fileSize: 20 * 1024 * 1024, // 10 MB
   },
 });
 
@@ -58,6 +60,8 @@ await fastify.register(kafkaConsumerPlugin);
 
 await fastify.register(dockerPlugin);
 
+await fastify.register(imageKitPlugin);
+
 await fastify.register(cors, {
   origin: [
     fastify.getEnvs<EnvConfig>().FRONTEND_URL,
@@ -65,6 +69,7 @@ await fastify.register(cors, {
     "http://web-dev:3000",
   ], // your frontend origin
   credentials: true, // allow cookies to be sent
+  methods: ["GET", "POST", "DELETE", "PUT"],
 });
 
 await fastify.register(authPlugin, { prefix: "/api" });
@@ -97,6 +102,7 @@ fastify.get(
 fastify.register(problemController, { prefix: "/api/v1/problems" });
 fastify.register(statController, { prefix: "/api/v1/stats" });
 fastify.register(runnerController, { prefix: "/api/v1/runner" });
+fastify.register(profileController, { prefix: "/api/v1/profile" });
 
 fastify.addHook("onClose", async (instance) => {
   await instance.dockerManager.cleanup();

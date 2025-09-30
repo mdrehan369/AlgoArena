@@ -7,10 +7,36 @@ import {
     Modal,
     Stack,
     Text,
-    Textarea,
     TextInput,
 } from '@mantine/core';
+import { useMutation } from '@tanstack/react-query';
+import { secondaryColors } from '@utils/colors';
+import { UpdateProfileKeys, UpdateProfilePicture } from '@utils/constants';
+import { formatDate } from '@utils/dateUtils';
+import axios from 'axios';
+import api from 'config/axios.config';
+import { updateProfile, updateProfilePicture } from 'queries/profile.queries';
 import { Dispatch, SetStateAction } from 'react';
+import { Controller, SubmitHandler, useForm } from 'react-hook-form';
+
+type Inputs = {
+    profilePicture?: File;
+    bio: string;
+    location: string;
+    website: string;
+    github: string;
+    linkedin: string;
+    x: string;
+};
+
+const fieldStyles = {
+    label: { color: 'white' },
+    input: {
+        backgroundColor: secondaryColors.GRAY,
+        border: '0px',
+        color: 'white',
+    },
+};
 
 export default function EditModal({
     editModalOpened,
@@ -19,6 +45,54 @@ export default function EditModal({
     editModalOpened: boolean;
     setEditModalOpened: Dispatch<SetStateAction<boolean>>;
 }) {
+    const update = useMutation({
+        mutationKey: UpdateProfileKeys,
+        mutationFn: updateProfile,
+        onSuccess: () => {
+            setEditModalOpened(false);
+            // window.location.reload()
+        },
+        onError: (err) => {
+            console.log(err);
+        },
+    });
+
+    const updatePicture = useMutation({
+        mutationKey: UpdateProfilePicture,
+        mutationFn: updateProfilePicture,
+        onError: (err) => {
+            console.log(err);
+        },
+    });
+
+    const {
+        register,
+        handleSubmit,
+        control,
+        formState: { isSubmitting },
+    } = useForm<Inputs>();
+    const onSubmit: SubmitHandler<Inputs> = async (data) => {
+        try {
+            if (data.profilePicture) {
+                const formData = new FormData();
+                formData.append('file', data.profilePicture);
+
+                // const response = await api.put("/profile/picture", formData, {
+                //   headers: {
+                //     'Content-Type': 'multipart/form-data',
+                //   }
+                // })
+                await updatePicture.mutateAsync(formData);
+                // console.log('Picture upload response:', response)
+            }
+
+            // Update other profile fields
+            const { profilePicture, ...profileData } = data;
+            update.mutate(profileData);
+        } catch (err) {
+            console.error('Error uploading profile:', err);
+        }
+    };
     const session = useSession();
     const user = session.data?.user as typeof auth.$Infer.Session.user;
 
@@ -35,13 +109,13 @@ export default function EditModal({
                 size="lg"
                 centered
                 styles={{
-                    // modal: {
-                    //   backgroundColor: "#1e293b",
-                    //   border: "1px solid #475569",
-                    // },
+                    body: {
+                        backgroundColor: secondaryColors.DARK,
+                        border: '0px',
+                    },
                     header: {
-                        backgroundColor: '#0f172a',
-                        borderBottom: '1px solid #334155',
+                        backgroundColor: secondaryColors.DARKER,
+                        borderBottom: '0px solid #334155',
                     },
                     title: {
                         color: 'white',
@@ -54,118 +128,91 @@ export default function EditModal({
                     },
                 }}
             >
-                <Stack gap="md" p="md">
-                    <FileInput
-                        label="Profile Picture"
-                        placeholder="Upload new profile picture"
-                        accept="image/*"
-                        styles={{
-                            label: { color: 'white' },
-                            input: {
-                                backgroundColor: '#1e293b',
-                                border: '1px solid #475569',
-                                color: 'white',
-                            },
-                        }}
-                    />
+                <form onSubmit={handleSubmit(onSubmit)}>
+                    <Stack gap="md" p="md">
+                        <Controller
+                            name="profilePicture"
+                            control={control}
+                            render={({ field }) => (
+                                <FileInput
+                                    label="Upload profile picture"
+                                    placeholder="Choose a file"
+                                    accept="image/*"
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                    onBlur={field.onBlur}
+                                    name={field.name}
+                                    styles={fieldStyles}
+                                />
+                            )}
+                        />
 
-                    <TextInput
-                        label="Full Name"
-                        defaultValue={user.name}
-                        styles={{
-                            label: { color: 'white' },
-                            input: {
-                                backgroundColor: '#1e293b',
-                                border: '1px solid #475569',
-                                color: 'white',
-                            },
-                        }}
-                    />
-
-                    <Textarea
-                        label="Bio"
-                        defaultValue={user.bio?.toString()}
-                        minRows={3}
-                        styles={{
-                            label: { color: 'white' },
-                            input: {
-                                backgroundColor: '#1e293b',
-                                border: '1px solid #475569',
-                                color: 'white',
-                            },
-                        }}
-                    />
-
-                    <TextInput
-                        label="Location"
-                        defaultValue={user.location?.toString()}
-                        styles={{
-                            label: { color: 'white' },
-                            input: {
-                                backgroundColor: '#1e293b',
-                                border: '1px solid #475569',
-                                color: 'white',
-                            },
-                        }}
-                    />
-
-                    <TextInput
-                        label="Website"
-                        defaultValue={user.website?.toString()}
-                        styles={{
-                            label: { color: 'white' },
-                            input: {
-                                backgroundColor: '#1e293b',
-                                border: '1px solid #475569',
-                                color: 'white',
-                            },
-                        }}
-                    />
-
-                    <Group grow>
                         <TextInput
-                            label="GitHub Username"
+                            label="Bio"
+                            {...register('bio')}
+                            defaultValue={user.bio?.toString()}
+                            placeholder="For Ex. Part time programmer full time cricketer"
+                            styles={fieldStyles}
+                        />
+
+                        <TextInput
+                            label="Location"
+                            {...register('location')}
+                            defaultValue={user.location?.toString()}
+                            placeholder="For Ex. Kolkata"
+                            styles={fieldStyles}
+                        />
+
+                        <TextInput
+                            label="Website"
+                            defaultValue={user.website?.toString()}
+                            placeholder="For Ex. https://johndoe.me"
+                            {...register('website')}
+                            styles={fieldStyles}
+                        />
+
+                        <TextInput
+                            label="X URL"
+                            {...register('x')}
+                            defaultValue={user.x?.toString()}
+                            placeholder="For Ex. https://x.com/johndoe"
+                            styles={fieldStyles}
+                        />
+
+                        <TextInput
+                            label="GitHub URL"
+                            {...register('github')}
                             defaultValue={user.github?.toString()}
-                            styles={{
-                                label: { color: 'white' },
-                                input: {
-                                    backgroundColor: '#1e293b',
-                                    border: '1px solid #475569',
-                                    color: 'white',
-                                },
-                            }}
+                            placeholder="For Ex. https://github.com/johndoe"
+                            styles={fieldStyles}
                         />
 
                         <TextInput
-                            label="LinkedIn Username"
+                            label="LinkedIn Username URL"
                             defaultValue={user.linkedin?.toString()}
-                            styles={{
-                                label: { color: 'white' },
-                                input: {
-                                    backgroundColor: '#1e293b',
-                                    border: '1px solid #475569',
-                                    color: 'white',
-                                },
-                            }}
+                            placeholder="For Ex. https://linkedin.com/johndoe"
+                            {...register('linkedin')}
+                            styles={fieldStyles}
                         />
-                    </Group>
 
-                    <Group justify="flex-end" mt="md">
-                        <Button
-                            variant="outline"
-                            color="gray"
-                            onClick={() => setEditModalOpened(false)}
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            color="teal"
-                            onClick={() => setEditModalOpened(false)}
-                        >
-                            Save Changes
-                        </Button>
-                    </Group>
-                </Stack>
+                        <Group justify="flex-end" mt="md">
+                            <Button
+                                variant="outline"
+                                color="gray"
+                                onClick={() => setEditModalOpened(false)}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                color="teal"
+                                type="submit"
+                                disabled={isSubmitting}
+                            >
+                                Save Changes
+                            </Button>
+                        </Group>
+                    </Stack>
+                </form>
             </Modal>
         )
     );

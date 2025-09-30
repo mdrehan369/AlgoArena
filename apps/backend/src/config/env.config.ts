@@ -1,6 +1,6 @@
 const schema = {
   type: "object",
-  required: [],
+  required: ["IMAGE_KIT_PUBLIC_KEY", "IMAGE_KIT_PRIVATE_KEY"],
   properties: {
     PORT: {
       type: "string",
@@ -18,6 +18,12 @@ const schema = {
       type: "string",
       default: "http://localhost:3000",
     },
+    IMAGE_KIT_PUBLIC_KEY: {
+      type: "string",
+    },
+    IMAGE_KIT_PRIVATE_KEY: {
+      type: "string",
+    },
   },
 };
 
@@ -26,6 +32,8 @@ export type EnvConfig = {
   HOST: string;
   COOKIE: string;
   FRONTEND_URL: string;
+  IMAGE_KIT_PUBLIC_KEY: string;
+  IMAGE_KIT_PRIVATE_KEY: string;
 };
 
 export const envOptions = {

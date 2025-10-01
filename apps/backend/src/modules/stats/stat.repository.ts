@@ -238,9 +238,9 @@ export class StatRepository {
       where: {
         userId,
         createdAt: {
-          gte: currentDate
-            .setDate(currentDate.getDate() - numOfDays)
-            .toString(),
+          gte: new Date(
+            currentDate.setDate(currentDate.getDate() - numOfDays),
+          ).toISOString(),
         },
       },
       select: { createdAt: true },
@@ -250,9 +250,9 @@ export class StatRepository {
     const dateToSolve: Record<string, number> = {};
 
     submissions.map((sub) => {
-      const date = sub.createdAt.toISOString().slice(10);
+      const date = sub.createdAt.toISOString().slice(0, 10);
       if (Object.hasOwn(dateToSolve, date)) dateToSolve[date]++;
-      else dateToSolve[date] = 0;
+      else dateToSolve[date] = 1;
     });
 
     return dateToSolve;

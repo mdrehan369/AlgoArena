@@ -23,3 +23,23 @@ export const updateProfilePicture = async (data: FormData) => {
         return null;
     }
 };
+
+export const getQuickStats = async () => {
+    try {
+        const response = await api.get('/profile/quick');
+        return response.data.data;
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+};
+
+export const getOverviewStats = async () => {
+    try {
+        const response = await api.get('/profile/overview');
+        return response.data.data;
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+};

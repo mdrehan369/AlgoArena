@@ -30,6 +30,10 @@ export const GetOverviewStatsSchema: FastifySchema = {
       type: "object",
       required: [],
       properties: {
+        problemsSolved: {
+          type: "number",
+          description: "Total Problems Solved",
+        },
         acceptanceRate: {
           type: "number",
           description: "Total Problems Solved",
@@ -83,6 +87,7 @@ export const GetOverviewStatsSchema: FastifySchema = {
             },
           },
         },
+        recentActivity: {},
         problemsSolvedByTopics: {
           type: "object",
           required: [],

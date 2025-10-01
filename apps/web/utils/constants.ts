@@ -28,6 +28,10 @@ export const UpdateProfileKeys = ['profile'];
 
 export const UpdateProfilePicture = ['profile', 'picture'];
 
+export const QuickStatsKeys = ['profile', 'quick'];
+
+export const OverviewStatsKeys = ['profile', 'overview'];
+
 export const topicOptions = [
     'ARRAY',
     'STRING',

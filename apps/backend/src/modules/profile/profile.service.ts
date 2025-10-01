@@ -54,6 +54,7 @@ export class ProfileService {
   }
 
   async getStatsOverview(userId: User["id"]) {
+    const problemsSolved = await this.statsRepository.getProblemsSolved(userId);
     const acceptanceRate = await this.statsRepository.getAcceptanceRate(userId);
     const totalSubmissions =
       await this.statsRepository.getTotalAttempts(userId);
@@ -63,13 +64,16 @@ export class ProfileService {
       await this.statsRepository.getProblemsSolvedByLanguages(userId);
     const problemsSolvedByTopics =
       await this.statsRepository.getProblemsSolvedByTopics(userId);
+    const recentActivity = await this.statsRepository.getRecentActivity(userId);
 
     return {
+      problemsSolved,
       acceptanceRate,
       totalSubmissions,
       problemsSolvedByDifficulty,
       problemsSolvedByLanguages,
       problemsSolvedByTopics,
+      recentActivity,
     };
   }
 }

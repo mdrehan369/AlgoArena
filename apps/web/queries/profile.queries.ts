@@ -43,3 +43,12 @@ export const getOverviewStats = async () => {
         return null;
     }
 };
+
+export const getRecentSubmissions = async () => {
+    try {
+        const response = await api.get('/profile/recent-submissions');
+        return response.data.data;
+    } catch (error) {
+        console.log(error);
+    }
+};

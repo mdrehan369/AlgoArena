@@ -257,4 +257,27 @@ export class StatRepository {
 
     return dateToSolve;
   }
+
+  async getRecentSubmissions(userId: User["id"], limit: number = 10) {
+    const submissions = await this.prisma.submittedResult.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+      take: limit,
+      omit: {
+        code: true,
+        userId: true,
+        testCasesPassed: true,
+      },
+      include: {
+        problem: {
+          select: {
+            slug: true,
+            title: true,
+          },
+        },
+      },
+    });
+
+    return submissions;
+  }
 }

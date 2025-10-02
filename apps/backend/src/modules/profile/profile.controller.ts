@@ -13,6 +13,7 @@ import { promisify } from "util";
 import {
   GetOverviewStatsSchema,
   GetQuickStatsSchema,
+  GetRecentSubmissionStatsSchema,
 } from "@/schemas/profile/profile.get";
 
 const pump = promisify(pipeline);
@@ -132,6 +133,19 @@ export const profileController: FastifyPluginCallback = (
       return reply
         .status(200)
         .send({ success: true, data: overview, message: "Fetched!" });
+    },
+  );
+
+  fastify.get(
+    "/recent-submissions",
+    { schema: GetRecentSubmissionStatsSchema },
+    async (req: FastifyRequest, reply: FastifyReply) => {
+      const recentSub = await fastify.profileService.getRecentSubmission(
+        fastify.user!.id,
+      );
+      return reply
+        .status(200)
+        .send({ success: true, data: recentSub, message: "Fetched!" });
     },
   );
 

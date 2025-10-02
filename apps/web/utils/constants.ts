@@ -32,6 +32,8 @@ export const QuickStatsKeys = ['profile', 'quick'];
 
 export const OverviewStatsKeys = ['profile', 'overview'];
 
+export const RecentSubmissionsStatsKeys = ['profile', 'recent-submissions'];
+
 export const topicOptions = [
     'ARRAY',
     'STRING',

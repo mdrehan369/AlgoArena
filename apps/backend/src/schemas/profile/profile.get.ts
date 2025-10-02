@@ -1,4 +1,5 @@
 import createResponseSchema from "@/utils/createResponseSchema";
+import { SubmittedResultSchema } from "@/utils/schemas";
 import { FastifySchema } from "fastify";
 
 export const GetQuickStatsSchema: FastifySchema = {
@@ -18,6 +19,18 @@ export const GetQuickStatsSchema: FastifySchema = {
       },
     }),
   },
+};
+
+export const GetRecentSubmissionStatsSchema: FastifySchema = {
+  description: "Get quick stats of a user",
+  tags: ["Profile", "Recent"],
+  summary: "Get recent submissions",
+  // response: {
+  //   200: createResponseSchema({
+  //     type: "array",
+  //     items: { ...SubmittedResultSchema }
+  //   }),
+  // },
 };
 
 export const GetOverviewStatsSchema: FastifySchema = {

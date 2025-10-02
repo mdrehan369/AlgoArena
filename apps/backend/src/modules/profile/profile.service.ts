@@ -76,4 +76,10 @@ export class ProfileService {
       recentActivity,
     };
   }
+
+  async getRecentSubmission(userId: User["id"]) {
+    const recentSubmissions =
+      await this.statsRepository.getRecentSubmissions(userId);
+    return recentSubmissions;
+  }
 }

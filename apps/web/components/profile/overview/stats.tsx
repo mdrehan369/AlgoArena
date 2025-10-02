@@ -88,8 +88,7 @@ export default function OverviewStats() {
                                         </Group>
                                         <Progress
                                             value={
-                                                (count /
-                                                    data.totalSubmissions) *
+                                                (count / data.problemsSolved) *
                                                 100
                                             }
                                             w={100}

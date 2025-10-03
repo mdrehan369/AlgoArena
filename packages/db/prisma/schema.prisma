@@ -153,6 +153,8 @@ model Problem {
   submittedResults SubmittedResult[]
   createdAt        DateTime           @default(now())
   customTestCases  CustomTestCase[]
+
+  contestProblems ContestProblem[]
 }
 
 model ExampleTestCases {
@@ -179,6 +181,43 @@ model SubmittedResult {
   problem   Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
+}
+
+model Contest {
+  id          Int         @id @unique @default(autoincrement())
+  title       String
+  description String?
+  slug        String      @unique
+  startTime   DateTime
+  endTime     DateTime
+  private     Boolean     @default(false)
+  type        ContestType @default(DAILY)
+
+  invitedParticipants String[]
+  participants        String[]
+
+  contestProblems ContestProblem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ContestProblem {
+  id        Int @id @unique @default(autoincrement())
+  contestId Int
+  problemId Int
+
+  contest Contest @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+}
+
+enum ContestType {
+  WEEKLY
+  BIWEEKLY
+  MONTHLY
+  DAILY
+  OCCASSIONAL
+  LOCAL
 }
 
 enum SubmissionStatus {

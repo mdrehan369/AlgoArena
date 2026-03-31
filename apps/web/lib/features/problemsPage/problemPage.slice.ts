@@ -15,7 +15,7 @@ enum Language {
 export interface ProblemState {
     jobId: string;
     problem: FullProblem | null;
-    code: string;
+    codes: Array<{ code: string; language: Language }>;
     language: Language;
     isRunning: boolean;
     testResults: Outputs[];
@@ -33,7 +33,10 @@ export interface ProblemState {
 const initialState: ProblemState = {
     jobId: getRandomInt(1000, 10000).toString(),
     problem: null,
-    code: '',
+    codes: Object.values(Language).map((lang) => ({
+        language: lang,
+        code: '',
+    })),
     language: Language.CPP,
     isRunning: false,
     testResults: [],
@@ -54,9 +57,21 @@ const problemsSlice = createSlice({
     reducers: {
         setProblemStatement: (state, action: { payload: FullProblem }) => {
             state.problem = action.payload;
+            // state.code =
+            //     action.payload.driverCodes.find(
+            //         (dc) => dc.language.toString() == state.language.toString(),
+            //     )?.placeHolderCode || '';
+            // console.log(action.payload);
         },
         setCode: (state, action: { payload: string }) => {
-            state.code = action.payload;
+            state.codes = state.codes.map((code) => {
+                if (code.language == state.language)
+                    return {
+                        code: action.payload,
+                        language: code.language,
+                    };
+                return code;
+            });
         },
         setLanguage: (state, action: { payload: Language }) => {
             state.language = action.payload;

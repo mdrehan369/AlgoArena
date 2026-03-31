@@ -27,8 +27,8 @@ export class DockerManager {
     private containerMap: Map<number, IContainer>
     private schedulingQueue: Queue
 
-    // private IMAGE = "mdrehan369/algoarena:runner_dev";
-    private IMAGE = 'algoarena_runner_dev'
+    private IMAGE = 'mdrehan369/algoarena:runner_dev'
+    // private IMAGE = 'algoarena_runner_dev'
     private NETWORK = 'algoarena'
 
     constructor() {

@@ -81,7 +81,7 @@ const languageMap = [
 function ProblemEditor() {
     const [selectedTheme, setSelectedTheme] = useState('algo-arena');
     const {
-        code,
+        codes,
         isRunning,
         problem,
         language,
@@ -117,7 +117,7 @@ function ProblemEditor() {
     useEffect(() => {
         if (isRunning) {
             runTestMutation.mutate({
-                code,
+                code: codes.find((c) => c.language == language)?.code || '',
                 language,
                 problemId: problem!.id,
                 id: jobId,
@@ -127,7 +127,7 @@ function ProblemEditor() {
         if (isCustomTestCasesRunning) {
             runCustomTestMutation.mutate({
                 id: jobId,
-                code,
+                code: codes.find((c) => c.language == language)?.code || '',
                 language,
                 problemId: problem!.id,
                 customTestCases: customTestCases.map((tc) => ({
@@ -149,7 +149,8 @@ function ProblemEditor() {
 
     const handleReset = async () => await formatCode(placeHolder);
 
-    const handleFormat = async () => await formatCode(code);
+    const handleFormat = async () =>
+        await formatCode(codes.find((c) => c.language == language)?.code || '');
 
     const prevPlaceholderRef = useRef<string>('');
     useEffect(() => {
@@ -287,7 +288,9 @@ function ProblemEditor() {
                     showPrintMargin={true}
                     showGutter={true}
                     highlightActiveLine={true}
-                    value={code}
+                    value={
+                        codes.find((c) => c.language == language)?.code || ''
+                    }
                     onChange={(val) => dispatch(setCode(val))}
                     wrapEnabled={false}
                     tabSize={4}

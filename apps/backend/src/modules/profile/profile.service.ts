@@ -1,85 +1,81 @@
-import { PrismaClient, User } from "@repo/db";
-import { ProfileKeys, ProfileRepository } from "./profile.repository";
-import { StatRepository } from "../stats/stat.repository";
+import { PrismaClient, User } from '@repo/db'
+import { ProfileKeys, ProfileRepository } from './profile.repository.js'
+import { StatRepository } from '../stats/stat.repository.js'
 
 export class ProfileService {
-  private prisma: PrismaClient;
-  private profileRepository: ProfileRepository;
-  private statsRepository: StatRepository;
+    private prisma: PrismaClient
+    private profileRepository: ProfileRepository
+    private statsRepository: StatRepository
 
-  constructor(prisma: PrismaClient) {
-    this.prisma = prisma;
-    this.profileRepository = new ProfileRepository(prisma);
-    this.statsRepository = new StatRepository(prisma);
-  }
-
-  async updateProfile(
-    userId: User["id"],
-    body: {
-      bio?: string;
-      location?: string;
-      website?: string;
-      github?: string;
-      linkedin?: string;
-      x?: string;
-    },
-  ) {
-    for (const key of Object.keys(body) as ProfileKeys[]) {
-      if (!body[key]) continue;
-      const response = await this.profileRepository.updateProfile(
-        userId,
-        key as ProfileKeys,
-        body[key],
-      );
-      if (!response)
-        return { success: false, message: `Error while updating ${key}` };
+    constructor(prisma: PrismaClient) {
+        this.prisma = prisma
+        this.profileRepository = new ProfileRepository(prisma)
+        this.statsRepository = new StatRepository(prisma)
     }
 
-    return { success: true, message: "Updated successfully!" };
-  }
+    async updateProfile(
+        userId: User['id'],
+        body: {
+            bio?: string
+            location?: string
+            website?: string
+            github?: string
+            linkedin?: string
+            x?: string
+        }
+    ) {
+        for (const key of Object.keys(body) as ProfileKeys[]) {
+            if (!body[key]) continue
+            const response = await this.profileRepository.updateProfile(
+                userId,
+                key as ProfileKeys,
+                body[key]
+            )
+            if (!response) return { success: false, message: `Error while updating ${key}` }
+        }
 
-  async updateProfilePicture(userId: User["id"], url: string, fileId: string) {
-    return this.profileRepository.updateProfilePicture(userId, url, fileId);
-  }
+        return { success: true, message: 'Updated successfully!' }
+    }
 
-  async deleteProfilePicture(userId: User["id"]) {
-    return this.profileRepository.deleteProfilePicture(userId);
-  }
+    async updateProfilePicture(userId: User['id'], url: string, fileId: string) {
+        return this.profileRepository.updateProfilePicture(userId, url, fileId)
+    }
 
-  async getQuickStats(userId: User["id"]) {
-    const problemsSolved = await this.statsRepository.getProblemsSolved(userId);
-    const getCurrStreak = await this.statsRepository.getCurrentStreak(userId);
+    async deleteProfilePicture(userId: User['id']) {
+        return this.profileRepository.deleteProfilePicture(userId)
+    }
 
-    return { problemsSolved, getCurrStreak };
-  }
+    async getQuickStats(userId: User['id']) {
+        const problemsSolved = await this.statsRepository.getProblemsSolved(userId)
+        const getCurrStreak = await this.statsRepository.getCurrentStreak(userId)
 
-  async getStatsOverview(userId: User["id"]) {
-    const problemsSolved = await this.statsRepository.getProblemsSolved(userId);
-    const acceptanceRate = await this.statsRepository.getAcceptanceRate(userId);
-    const totalSubmissions =
-      await this.statsRepository.getTotalAttempts(userId);
-    const problemsSolvedByDifficulty =
-      await this.statsRepository.getProblemsSolvedByDifficulty(userId);
-    const problemsSolvedByLanguages =
-      await this.statsRepository.getProblemsSolvedByLanguages(userId);
-    const problemsSolvedByTopics =
-      await this.statsRepository.getProblemsSolvedByTopics(userId);
-    const recentActivity = await this.statsRepository.getRecentActivity(userId);
+        return { problemsSolved, getCurrStreak }
+    }
 
-    return {
-      problemsSolved,
-      acceptanceRate,
-      totalSubmissions,
-      problemsSolvedByDifficulty,
-      problemsSolvedByLanguages,
-      problemsSolvedByTopics,
-      recentActivity,
-    };
-  }
+    async getStatsOverview(userId: User['id']) {
+        const problemsSolved = await this.statsRepository.getProblemsSolved(userId)
+        const acceptanceRate = await this.statsRepository.getAcceptanceRate(userId)
+        const totalSubmissions = await this.statsRepository.getTotalAttempts(userId)
+        const problemsSolvedByDifficulty =
+            await this.statsRepository.getProblemsSolvedByDifficulty(userId)
+        const problemsSolvedByLanguages =
+            await this.statsRepository.getProblemsSolvedByLanguages(userId)
+        const problemsSolvedByTopics = await this.statsRepository.getProblemsSolvedByTopics(userId)
+        const recentActivity = await this.statsRepository.getRecentActivity(userId)
 
-  async getRecentSubmission(userId: User["id"]) {
-    const recentSubmissions =
-      await this.statsRepository.getRecentSubmissions(userId);
-    return recentSubmissions;
-  }
+        return {
+            problemsSolved,
+            acceptanceRate,
+            totalSubmissions,
+            problemsSolvedByDifficulty,
+            problemsSolvedByLanguages,
+            problemsSolvedByTopics,
+            recentActivity,
+        }
+    }
+
+    async getRecentSubmission(userId: User['id']) {
+        const recentSubmissions = await this.statsRepository.getRecentSubmissions(userId)
+        return recentSubmissions
+    }
 }

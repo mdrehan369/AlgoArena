@@ -1,6 +1,6 @@
 import Docker from 'dockerode'
-import { Queue } from './queue'
-import { HealthStatus } from './health'
+import { Queue } from './queue.js'
+import { HealthStatus } from './health.js'
 import stream from 'stream'
 
 enum ContainerStatus {

@@ -26,16 +26,12 @@ const navItems: NavItems[] = [
         href: '/problems',
     },
     {
-        name: 'Leaderboard',
-        href: '/leaderboard',
-    },
-    {
         name: 'Features',
-        href: '#features',
+        href: '/#features',
     },
     {
         name: 'How It Works',
-        href: '#how-it-works',
+        href: '/#how-it-works',
     },
 ];
 
@@ -90,7 +86,12 @@ export default function Header() {
                                 Sign In
                             </Button>
                         )}
-                        <Button color="teal">Get Started</Button>
+                        <Button
+                            color="teal"
+                            onClick={() => router.push('/problems')}
+                        >
+                            Get Started
+                        </Button>
                         <ProfileMenu />
                     </Group>
                 </Group>

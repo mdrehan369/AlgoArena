@@ -10,6 +10,7 @@ import {
     SimpleGrid,
 } from '@mantine/core';
 import { IconArrowRight } from '@tabler/icons-react';
+import Link from 'next/link';
 
 export default function HeroSection() {
     return (
@@ -57,17 +58,17 @@ export default function HeroSection() {
                         </Text>{' '}
                         and build a community of elite coders.
                     </Text>
-
-                    <Group>
-                        <Button
-                            size="lg"
-                            color="teal"
-                            rightSection={<IconArrowRight size={20} />}
-                        >
-                            Start Coding Now
-                        </Button>
-                    </Group>
-
+                    <Link href={'/problems'}>
+                        <Group>
+                            <Button
+                                size="lg"
+                                color="teal"
+                                rightSection={<IconArrowRight size={20} />}
+                            >
+                                Start Coding Now
+                            </Button>
+                        </Group>
+                    </Link>
                     <SimpleGrid cols={{ base: 1, md: 3 }} spacing="xl" mt="xl">
                         <Stack align="center">
                             <Title order={2} c="teal">

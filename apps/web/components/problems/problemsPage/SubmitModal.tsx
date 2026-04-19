@@ -37,7 +37,7 @@ export default function SubmitModal() {
     const {
         language,
         problem,
-        code,
+        codes,
         jobId,
         isSubmiting: opened,
         submitResults: { finalResult, testCases, isPending },
@@ -72,7 +72,10 @@ export default function SubmitModal() {
 
         submit.mutate({
             userId: session.data!.user.id,
-            code,
+            code:
+                codes.find(
+                    (cd) => cd.language.toString() == language.toString(),
+                )?.code || '',
             language,
             problemId: problem!.id,
             id: jobId,

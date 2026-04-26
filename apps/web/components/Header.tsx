@@ -33,6 +33,10 @@ const navItems: NavItems[] = [
         name: 'How It Works',
         href: '/#how-it-works',
     },
+    {
+        name: 'Rooms',
+        href: '/rooms',
+    },
 ];
 
 export default function Header() {

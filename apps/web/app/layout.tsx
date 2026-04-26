@@ -1,15 +1,20 @@
-import type { Metadata } from "next";
-import "./globals.css";
+import type { Metadata } from 'next';
+import './globals.css';
 
 import '@mantine/core/styles.css';
 
-import { ColorSchemeScript, MantineProvider, mantineHtmlProps } from '@mantine/core';
-import Providers from "./Providers.tsx";
-import { validateConfig } from "config/env.config.ts";
+import {
+    ColorSchemeScript,
+    MantineProvider,
+    mantineHtmlProps,
+} from '@mantine/core';
+import Providers from './Providers.tsx';
+import { validateConfig } from 'config/env.config.ts';
+import { secondaryColors } from '@utils/colors.ts';
 
 export const metadata: Metadata = {
-    title: "Algo Arena",
-    description: "The Arena Built for Programmers, by Programmers.",
+    title: 'Algo Arena',
+    description: 'The Arena Built for Programmers, by Programmers.',
 };
 
 export default function RootLayout({
@@ -17,17 +22,15 @@ export default function RootLayout({
 }: Readonly<{
     children: React.ReactNode;
 }>) {
-    validateConfig()
+    validateConfig();
     return (
         <html lang="en" {...mantineHtmlProps}>
             <head>
                 <ColorSchemeScript />
             </head>
-            <body>
+            <body style={{ backgroundColor: secondaryColors.DARKER }}>
                 <MantineProvider>
-                    <Providers>
-                        {children}
-                    </Providers>
+                    <Providers>{children}</Providers>
                 </MantineProvider>
             </body>
         </html>

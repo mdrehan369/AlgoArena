@@ -1,135 +1,148 @@
-# Turborepo starter
+# AlgoArena
 
-This Turborepo starter is maintained by the Turborepo core team.
+A scalable competitive coding platform where users can solve programming problems, compete in contests, and battle friends in real time inside custom rooms with a live leaderboard.
 
-## Using this example
+---
 
-Run the following command:
+## Overview
 
-```sh
-npx create-turbo@latest
-```
+AlgoArena is a full-stack online judge system built as a Turborepo monorepo. Users can browse and solve coding problems across multiple languages, track their submission stats, and take part in contests. The standout feature is **custom battle rooms** — users can create a private room, invite friends, and compete head-to-head on a set of problems with a live-updating leaderboard, turning practice into a real-time competitive experience.
 
-## What's inside?
+Under the hood, submitted code runs in **isolated, resource-limited Docker containers**, dispatched through a Kafka-based message queue to a dedicated runner service — the same architectural pattern used by real online judges to safely execute untrusted user code at scale.
 
-This Turborepo includes the following packages/apps:
+---
 
-### Apps and Packages
+## Key Features
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+- **Custom battle rooms** — create a room, invite friends, and compete live with a real-time leaderboard
+- **Contests** — daily, weekly, biweekly, monthly, and local contests with public/private visibility and invite-only participation
+- **Multi-language code execution** — supports C++, C, JavaScript, and Python
+- **Sandboxed code execution** — user-submitted code runs in isolated Docker containers with runtime and memory limits, managed via Dockerode
+- **Asynchronous judging pipeline** — submissions are queued and processed through Kafka, decoupling the API from code execution
+- **Problem catalog** — problems organized by topic (arrays, graphs, DP, and more) and difficulty level, with example and hidden test cases
+- **Authentication** — email/password plus GitHub and Google OAuth via Better Auth
+- **Submission tracking** — per-user stats, acceptance rates, and submission history
+- **API documentation** — auto-generated via Swagger/OpenAPI
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+---
 
-### Utilities
+## Architecture
 
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
+AlgoArena is composed of independently deployable services within a single monorepo:
 
 ```
-cd my-turborepo
+apps/
+├── backend/    # Fastify API — auth, problems, submissions, room/contest logic
+├── runner/     # Kafka consumer service — executes submitted code in sandboxed Docker containers
+└── web/        # Next.js frontend — problem pages, code editor, rooms, profile & stats
 
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
+packages/
+├── db/                 # Prisma schema, migrations, and shared DB client (PostgreSQL)
+├── eslint-config/       # Shared lint configuration
+└── typescript-config/   # Shared TypeScript configuration
 ```
 
-You can build a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+**Submission flow:** the frontend sends code to the backend API → the backend publishes a job to Kafka → the runner service consumes the job, spins up a sandboxed Docker container to execute the code against test cases, and reports the result back → results and stats are persisted via Prisma/PostgreSQL and reflected live in rooms/leaderboards.
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
+---
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
+## Tech Stack
 
-### Develop
+| Layer | Technology |
+|---|---|
+| Frontend | Next.js, React, Redux Toolkit, TanStack Query, Mantine UI, Tailwind CSS |
+| Backend API | Node.js, Fastify, Swagger/OpenAPI |
+| Code Execution | Dockerode (sandboxed Docker containers), Kafka (KafkaJS) |
+| Database | PostgreSQL, Prisma ORM |
+| Auth | Better Auth (email/password, GitHub OAuth, Google OAuth) |
+| Monorepo Tooling | Turborepo, npm workspaces |
+| Containerization | Docker, Docker Compose |
+| Code Quality | ESLint, Prettier, Husky |
 
-To develop all apps and packages, run the following command:
+---
 
-```
-cd my-turborepo
+## Getting Started
 
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
+### Prerequisites
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
-```
+- Node.js >= 18
+- Docker & Docker Compose
+- npm
 
-You can develop a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+### Installation
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
+```bash
+git clone https://github.com/mdrehan369/AlgoArena.git
+cd AlgoArena
+npm install
 ```
 
-### Remote Caching
+### Environment Variables
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+Each app (`apps/backend`, `apps/web`, `packages/db`) expects its own environment configuration — including `DATABASE_URL` for PostgreSQL, Kafka broker settings, and OAuth credentials (`GITHUB_CLIENT_ID`/`SECRET`, `GOOGLE_CLIENT_ID`/`SECRET`) for the web app. Refer to each app's config files under `src/config` / `config` for the full list of required variables.
 
-Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
+### Running with Docker Compose (recommended)
 
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
+This spins up PostgreSQL, runs migrations, and starts the backend and web services:
 
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
+```bash
+docker compose up
 ```
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+- Web app: `http://localhost:3000`
+- Backend API: `http://localhost:5000`
+- Prisma Studio (DB browser): `http://localhost:5555`
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+### Running Locally (development)
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
+```bash
+# Start backend and web concurrently
+npm run dev
 ```
 
-## Useful Links
+This runs the `backend` and `web` workspaces in parallel via Turborepo. The `runner` service and Kafka broker need to be running separately for code execution to work end-to-end.
 
-Learn more about the power of Turborepo:
+---
 
-- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.com/docs/reference/configuration)
-- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
+## Available Scripts
+
+| Script | Description |
+|---|---|
+| `npm run dev` | Run backend and web apps concurrently |
+| `npm run build` | Build all apps and packages via Turborepo |
+| `npm run lint` | Lint all workspaces |
+| `npm run format` | Format the codebase with Prettier |
+| `npm run check-types` | Type-check all workspaces |
+
+---
+
+## Roadmap
+
+- [ ] Expanded language support for code execution
+- [ ] Global and per-contest leaderboards
+- [ ] Rate limiting on submission endpoints
+- [ ] CI/CD pipeline
+
+---
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to your branch
+5. Open a Pull Request
+
+---
+
+## License
+
+This project is licensed under the MIT License.
+
+[![License: MIT](https://shields.io)](LICENSE)
+---
+
+## Author
+
+**MD Rehan**
+[GitHub](https://github.com/mdrehan369) · [LinkedIn](https://linkedin.com/in/md-rehan-169411232)

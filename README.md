@@ -135,11 +135,13 @@ This runs the `backend` and `web` workspaces in parallel via Turborepo. The `run
 
 ---
 
+## License
+
+This project is licensed under the MIT License.
+
+---
+
 ## Author
 
 **MD Rehan**
 [GitHub](https://github.com/mdrehan369) · [LinkedIn](https://linkedin.com/in/md-rehan-169411232)
-
----
-
-[![License: MIT](https://shields.io)](LICENSE)

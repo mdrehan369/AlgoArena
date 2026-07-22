@@ -2,6 +2,8 @@ import { PrismaClient } from '../generated/prisma/'
 import { data } from '../data/problemsData'
 const prisma = new PrismaClient()
 async function main() {
+    await prisma.driverCode.deleteMany()
+    await prisma.problem.deleteMany()
     data.map(
         async ({
             title,

@@ -56,7 +56,7 @@ export default function Header() {
         >
             <Container size="xl" py="md">
                 <Group justify="space-between">
-                    <Group>
+                    <Group onClick={() => router.push('/')}>
                         <ThemeIcon
                             size="lg"
                             variant="gradient"

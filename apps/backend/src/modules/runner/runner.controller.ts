@@ -1,134 +1,136 @@
-import { FastifyPluginCallback, FastifyReply, FastifyRequest } from "fastify";
-import {
-  RunCustomTestSchema,
-  RunTestSchema,
-} from "@/schemas/runner/runner.post.js";
-import { CustomTestCase, Language, Problem } from "@repo/db";
-import { EnvConfig } from "@/config/env.config.js";
+import { FastifyPluginCallback, FastifyReply, FastifyRequest } from 'fastify'
+import { RunCustomTestSchema, RunTestSchema } from '@/schemas/runner/runner.post.js'
+import { CustomTestCase, Language, Problem } from '@repo/db'
+import { EnvConfig } from '@/config/env.config.js'
 
-export const runnerController: FastifyPluginCallback = (
-  fastify,
-  opts,
-  done,
-) => {
-  fastify.post(
-    "/test",
-    { schema: RunTestSchema },
-    async (
-      request: FastifyRequest<{
-        Body: {
-          code: string;
-          language: Language;
-          problemId: Problem["id"];
-          id: string;
-        };
-      }>,
-      reply: FastifyReply,
-    ) => {
-      const { code, id } = request.body;
+export const runnerController: FastifyPluginCallback = (fastify, opts, done) => {
+    fastify.post(
+        '/test',
+        { schema: RunTestSchema },
+        async (
+            request: FastifyRequest<{
+                Body: {
+                    code: string
+                    language: Language
+                    problemId: Problem['id']
+                    id: string
+                }
+            }>,
+            reply: FastifyReply
+        ) => {
+            const { code, id } = request.body
 
-      if (code == "")
-        return reply
-          .status(400)
-          .send({ success: false, message: "No code given" });
+            if (code == '')
+                return reply.status(400).send({ success: false, message: 'No code given' })
 
-      const partition = await fastify.dockerManager.assignTask();
+            const partition = await fastify.dockerManager.assignTask()
 
-      const data = await fastify.kafkaProducer.producer.send({
-        topic: "execution-requests",
-        messages: [
-          {
-            key: id,
-            value: JSON.stringify({ ...request.body, action: "TEST" }),
-            partition: partition || 0,
-          },
-        ],
-      });
+            const data = await fastify.kafkaProducer.producer.send({
+                topic: 'execution-requests',
+                messages: [
+                    {
+                        key: id,
+                        value: JSON.stringify({ ...request.body, action: 'TEST' }),
+                        partition: partition || 0,
+                    },
+                ],
+            })
 
-      fastify.log.info(data);
-      fastify.log.info(partition);
+            fastify.log.info(data)
+            fastify.log.info(partition)
 
-      return reply.send({
-        success: true,
-        message: `Execution Request Send With ID ${id}!`,
-      });
-    },
-  );
+            return reply.send({
+                success: true,
+                message: `Execution Request Send With ID ${id}!`,
+            })
+        }
+    )
 
-  fastify.post(
-    "/custom",
-    { schema: RunCustomTestSchema },
-    async (
-      request: FastifyRequest<{
-        Body: {
-          id: string;
-          code: string;
-          language: Language;
-          problemId: Problem["id"];
-          customTestCases: CustomTestCase[];
-        };
-      }>,
-      reply,
-    ) => {
-      const { code, id } = request.body;
+    fastify.post(
+        '/custom',
+        { schema: RunCustomTestSchema },
+        async (
+            request: FastifyRequest<{
+                Body: {
+                    id: string
+                    code: string
+                    language: Language
+                    problemId: Problem['id']
+                    customTestCases: CustomTestCase[]
+                }
+            }>,
+            reply
+        ) => {
+            const { code, id } = request.body
 
-      if (code == "")
-        return reply
-          .status(400)
-          .send({ success: false, message: "No code given" });
+            if (code == '')
+                return reply.status(400).send({ success: false, message: 'No code given' })
 
-      await fastify.kafkaProducer.producer.send({
-        topic: "execution-requests",
-        messages: [
-          {
-            key: id,
-            value: JSON.stringify({ ...request.body, action: "CUSTOM" }),
-          },
-        ],
-      });
+            await fastify.kafkaProducer.producer.send({
+                topic: 'execution-requests',
+                messages: [
+                    {
+                        key: id,
+                        value: JSON.stringify({ ...request.body, action: 'CUSTOM' }),
+                    },
+                ],
+            })
 
-      return reply.send({
-        success: true,
-        message: `Execution Request Send With ID ${id}!`,
-      });
-    },
-  );
+            return reply.send({
+                success: true,
+                message: `Execution Request Send With ID ${id}!`,
+            })
+        }
+    )
 
-  // SSE route
-  fastify.get(
-    "/events/:id",
-    async (request: FastifyRequest<{ Params: { id: string } }>, reply) => {
-      const { id } = request.params;
-      fastify.log.debug(`events me aaya h with id ${id}`);
+    // SSE route
+    fastify.get('/events/:id', (request: FastifyRequest<{ Params: { id: string } }>, reply) => {
+        const { id } = request.params
 
-      if (fastify.clientMap.hasClient(id))
-        return reply.send({ success: false, message: "Already subscribed!" });
+        fastify.log.fatal(`SSE connection requested for ${id}`)
 
-      reply.raw.writeHead(200, {
-        "Content-Type": "text/event-stream",
-        "Cache-Control": "no-cache",
-        Connection: "keep-alive",
-        "Access-Control-Allow-Origin":
-          fastify.getEnvs<EnvConfig>().FRONTEND_URL,
-        "Access-Control-Allow-Credentials": "true",
-        "Access-Control-Expose-Headers": "*",
-        "Access-Control-Allow-Methods": "GET, OPTIONS",
-      });
+        if (fastify.clientMap.hasClient(id)) {
+            reply.code(409).send({
+                success: false,
+                message: 'Already subscribed!',
+            })
 
-      reply.hijack();
+            return
+        }
 
-      // reply.raw.write("data: {jobId: \"1000\"}")
-      fastify.clientMap.setClient(id, reply);
+        reply.hijack()
 
-      // cleanup when client disconnects
-      request.raw.on("close", async () => {
-        fastify.clientMap.deleteClient(id);
-        fastify.log.debug(`closing client ${id}`);
-      });
+        reply.raw.writeHead(200, {
+            'Content-Type': 'text/event-stream; charset=utf-8',
+            'Cache-Control': 'no-cache, no-transform',
+            Connection: 'keep-alive',
 
-      // return reply // important to keep the connection open
-    },
-  );
+            // CORS
+            'Access-Control-Allow-Origin': fastify.getEnvs<EnvConfig>().FRONTEND_URL,
+            'Access-Control-Allow-Credentials': 'true',
+        })
 
-  done();
-};
+        reply.raw.write(
+            `event: connected\ndata: ${JSON.stringify({
+                id,
+            })}\n\n`
+        )
+
+        fastify.clientMap.setClient(id, reply)
+
+        const heartbeat = setInterval(() => {
+            if (!reply.raw.destroyed) {
+                reply.raw.write(': heartbeat\n\n')
+            }
+        }, 15000)
+
+        request.raw.on('close', () => {
+            clearInterval(heartbeat)
+
+            fastify.clientMap.deleteClient(id)
+
+            fastify.log.fatal(`SSE client disconnected: ${id}`)
+        })
+    })
+    done()
+}

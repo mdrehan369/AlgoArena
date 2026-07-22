@@ -96,6 +96,30 @@ docker compose up
 ### Running Locally (development)
 
 ```bash
+# Run database
+docker run --name algoarenaDatabase -d -p 5432:5432 --network algoarenaNetwork -e POSTGRES_PASSWORD=1234 postgres:latest
+
+# Run apache kafka
+docker run -d \
+  --name algoarenaKafka \
+  --network algoarenaNetwork \
+  -p 9092:9092 \
+  -p 29092:29092 \
+  -e KAFKA_PROCESS_ROLES=broker,controller \
+  -e KAFKA_NODE_ID=1 \
+  -e KAFKA_CONTROLLER_QUORUM_VOTERS=1@algoarenaKafka:9093 \
+  -e KAFKA_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:29092 \
+  -e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://algoarenaKafka:9092,EXTERNAL://localhost:29092 \
+  -e KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT \
+  -e KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER \
+  -e KAFKA_INTER_BROKER_LISTENER_NAME=PLAINTEXT \
+  -e KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1 \
+  -e KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=1 \
+  -e KAFKA_TRANSACTION_STATE_LOG_MIN_ISR=1 \
+  apache/kafka:latest
+```
+
+```bash
 # Start backend and web concurrently
 npm run dev
 ```

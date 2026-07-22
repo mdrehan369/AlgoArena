@@ -132,7 +132,7 @@ model DriverCode {
   afterCode       String
   placeHolderCode String   @default("")
   problemId       Int
-  Problem         Problem  @relation(fields: [problemId], references: [id])
+  Problem         Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
 }
 
 model Problem {

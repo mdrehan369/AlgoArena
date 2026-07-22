@@ -2,7 +2,6 @@ import { createSlice } from '@reduxjs/toolkit';
 import { CustomTestCase } from 'types/TestCase.types';
 import { FullProblem } from 'types/problems.types';
 import { Outputs } from 'types/TestCase.types';
-import { getRandomInt } from '@utils/generateRandomInt';
 import { SubmittedResult } from '@repo/db';
 
 enum Language {
@@ -13,7 +12,7 @@ enum Language {
 }
 
 export interface ProblemState {
-    jobId: string;
+    jobId: string | null;
     problem: FullProblem | null;
     codes: Array<{ code: string; language: Language }>;
     language: Language;
@@ -31,7 +30,7 @@ export interface ProblemState {
 }
 
 const initialState: ProblemState = {
-    jobId: getRandomInt(1000, 10000).toString(),
+    jobId: null,
     problem: null,
     codes: Object.values(Language).map((lang) => ({
         language: lang,
@@ -57,11 +56,13 @@ const problemsSlice = createSlice({
     reducers: {
         setProblemStatement: (state, action: { payload: FullProblem }) => {
             state.problem = action.payload;
-            // state.code =
-            //     action.payload.driverCodes.find(
-            //         (dc) => dc.language.toString() == state.language.toString(),
-            //     )?.placeHolderCode || '';
-            // console.log(action.payload);
+        },
+        resetProblemStatement: (state) => {
+            state = initialState;
+            return state;
+        },
+        setJobId: (state, action: { payload: string }) => {
+            state.jobId = action.payload;
         },
         setCode: (state, action: { payload: string }) => {
             state.codes = state.codes.map((code) => {
@@ -157,5 +158,7 @@ export const {
     setTestCases,
     startSubmitting,
     stopSubmitting,
+    resetProblemStatement,
+    setJobId,
 } = problemsSlice.actions;
 export default problemsSlice.reducer;

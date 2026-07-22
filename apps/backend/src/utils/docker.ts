@@ -29,7 +29,7 @@ export class DockerManager {
 
     private IMAGE = 'mdrehan369/algoarena:runner_dev'
     // private IMAGE = 'algoarena_runner_dev'
-    private NETWORK = 'algoarena'
+    private NETWORK = 'algoarenaNetwork'
 
     constructor() {
         this.docker = new Docker()
